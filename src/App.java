@@ -26,7 +26,7 @@ class webCrawler implements Runnable {
 
 public webCrawler( int n) {
     Num =n;
-   // links = new HashSet<String>();
+    links = new HashSet<String>();
 }
     public void run() {
         for (int i = 0; i < Num; i++) {
