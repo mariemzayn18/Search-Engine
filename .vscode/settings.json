@@ -1,7 +1,9 @@
 {    
     
     "java.project.referencedLibraries": [
-        "lib/jsoup-1.13.1.jar"
+        "lib/jsoup-1.13.1.jar",
+        "lib/mongo-java-driver-3.12.4.jar"
+   
     ],
     "java.project.sourcePaths": [
         "src"

@@ -1,9 +1,34 @@
 import org.jsoup.Jsoup;
 import java.util.*;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
+import com.mongodb.MongoClient;
 
 public class App {
     public static void main(String[] args) throws InterruptedException {
-      
+
+        // Creating a Mongo client
+        MongoClient mongo = new MongoClient("localhost", 27017);
+
+        // Accessing the database
+        MongoDatabase database = mongo.getDatabase("myDatabase");
+
+        // Creating a collection
+        database.createCollection("Search-Engine");
+        System.out.println("Collection created successfully");
+
+        // Retrieving a collection
+        MongoCollection<Document> collection = database.getCollection("Search-Engine");
+        System.out.println("Collection Search-Engine selected successfully");
+        String text="";
+        String URL="";
+        Document document = new Document("text", text).append("URL", URL);
+
+        // Inserting document into the collection
+        collection.insertOne(document);
+        System.out.println("Document inserted successfully");
+
         Scanner sc = new Scanner(System.in); // System.in is a standard input stream
         System.out.print("Enter first number- ");
         int a = sc.nextInt();
@@ -14,7 +39,7 @@ public class App {
             Arr[i].start();
         }
 
-     //   new WebCrawler().getPageLinks("http://www.mkyong.com/",a);
+        // new WebCrawler().getPageLinks("http://www.mkyong.com/",a);
 
     }
 }
