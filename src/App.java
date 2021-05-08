@@ -3,7 +3,7 @@ import java.util.*;
 
 public class App {
     public static void main(String[] args) throws InterruptedException {
-
+      
         Scanner sc = new Scanner(System.in); // System.in is a standard input stream
         System.out.print("Enter first number- ");
         int a = sc.nextInt();
@@ -23,6 +23,7 @@ class webCrawler implements Runnable {
 
     public int Num;
 // hashiing
+private HashSet<String> links;
 
 public webCrawler( int n) {
     Num =n;
@@ -42,7 +43,7 @@ public webCrawler( int n) {
     public void getPageLinks(String URL) {
         //4. Check if you have already crawled the URLs 
         //(we are intentionally not checking for duplicate content in this example)
-       // if (!links.contains(URL)) {
+        if (!links.contains(URL)) {
             try {
                 //4. (i) If not add it to the index
                 if (links.add(URL)) {
