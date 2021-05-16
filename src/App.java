@@ -6,9 +6,7 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Vector;
-
 import javax.lang.model.util.Elements;
-
 import org.bson.Document;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
