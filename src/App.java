@@ -48,66 +48,7 @@ class App {
 
         // new WebCrawler().getPageLinks("http://www.mkyong.com/",a);
 
-        // -----------------------------Indexer--------------------------------
-
-        // TODO 1-Remove HTML Tags(Done)
-        // 2-making array of unwanted text(is , are ,,,etc)
-        // 3-make Stemmer(Done)
-        // 4-make periority using TF-IDF
-        // UNTIL NOWWWWWW !!!!
-
-        // Remove HTML Tags
-        String str = "";
-        str = str.replaceAll("\\<.*?\\>", "");
-        str = str.toLowerCase();
-        // Array of unwanted Text(unfinished)
-        Set<String> stopWords = new HashSet<String>();
-        stopWords.add("a");
-        stopWords.add("I");
-        stopWords.add("the");
-
-        for (String value : stopWords) {
-            str = str.replaceAll(value, "");
-
-        }
-
-        Stemmer Stem = new Stemmer();
-
-        Stem.add(str.toCharArray(), str.toCharArray().length);
-
-        // if (Character.isLetter((char) ch))
-        // {
-        // int j = 0;
-        // while(true)
-        // { ch = Character.toLowerCase((char) ch);
-        // w[j] = (char) ch;
-        // if (j < 500) j++;
-        // ch = in.read();
-        // if (!Character.isLetter((char) ch))
-        // {
-        // /* to test add(char ch) */
-        // for (int c = 0; c < j; c++) s.add(w[c]);
-
-        // /* or, to test add(char[] w, int j) */
-        // /* s.add(w, j); */
-
-        // s.stem();
-        // { String u;
-
-        // /* and now, to test toString() : */
-        // u = s.toString();
-
-        // /* to test getResultBuffer(), getResultLength() : */
-        // /* u = new String(s.getResultBuffer(), 0, s.getResultLength()); */
-
-        // System.out.print(u);
-        // }
-        // break;
-        // }
-        // }
-        // }
-
-        // }
+       
     }
 
     class webCrawler implements Runnable {
@@ -177,6 +118,92 @@ class App {
             }
         }
 
+        
+        
+        public void indexer(org.jsoup.nodes.Document Doc) {
+         
+ // -----------------------------Indexer--------------------------------
+
+        // TODO 1-Remove HTML Tags(Done)
+        // 2-making array of unwanted text(is , are ,,,etc)
+        // 3-make Stemmer(Done)
+        // 4-make periority using TF-IDF
+        // UNTIL NOWWWWWW !!!!
+
+        // Remove Tags
+        String str = Doc.toString();
+        str = str.replaceAll("(<style.+?</style>)", "");
+        str = str.replaceAll("(?s)<script.*?(/>|</script>)", "");
+        str = str.replaceAll("(?s)<head.*?(/>|</head>)", "");
+        str = str.replaceAll("(?s)<a.*?(/>|</a>)", "");
+        //str = str.replaceAll("(?s)<li.*?(/>|</li>)", "");
+        str = str.replaceAll("[0-9]", "");
+        str = str.replaceAll("\\<.*?\\>", "");
+        str = str.replaceAll("\\W+"," ");
+        str = str.toLowerCase();
+// Array of unwanted Text(unfinished)
+        Set<String> stopWords = new HashSet<String>();
+        stopWords.add("a");
+        stopWords.add("an");
+        stopWords.add("i");
+        stopWords.add("is");
+        stopWords.add("are");
+        stopWords.add("he");
+        stopWords.add("she");
+        stopWords.add("it");
+        stopWords.add("the");
+        stopWords.add(";");
+        stopWords.add(".");
+        stopWords.add("+");
+
+
+        for (String value : stopWords) {
+            str = str.replaceAll(" "+value+" ", " ");
+
+        }
+
+        Stemmer Stem = new Stemmer();
+
+        Stem.add(str.toCharArray(), str.toCharArray().length);
+
+        // if (Character.isLetter((char) ch))
+        // {
+        // int j = 0;
+        // while(true)
+        // { ch = Character.toLowerCase((char) ch);
+        // w[j] = (char) ch;
+        // if (j < 500) j++;
+        // ch = in.read();
+        // if (!Character.isLetter((char) ch))
+        // {
+        // /* to test add(char ch) */
+        // for (int c = 0; c < j; c++) s.add(w[c]);
+
+        // /* or, to test add(char[] w, int j) */
+        // /* s.add(w, j); */
+
+        // s.stem();
+        // { String u;
+
+        // /* and now, to test toString() : */
+        // u = s.toString();
+
+        // /* to test getResultBuffer(), getResultLength() : */
+        // /* u = new String(s.getResultBuffer(), 0, s.getResultLength()); */
+
+        // System.out.print(u);
+        // }
+        // break;
+        // }
+        // }
+        // }
+
+        // }
+
+
+        }
+
+        
         Vector<String> robot_file(String url) throws MalformedURLException {
             Vector<String> v = new Vector<String>(1, 1);
             URL url1 = new URL(url);
