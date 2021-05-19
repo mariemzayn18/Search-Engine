@@ -79,16 +79,20 @@ class App {
         }
 
         public void getPageLinks(String URL) throws MalformedURLException {
-            // 4. Check if you have already crawled the URLs
+         
+             // 4. Check if you have already crawled the URLs
             // (we are intentionally not checking for duplicate content in this example)
-            Vector<String> no_read = new Vector<String>(1, 1);
-            // int size =no_read.capacity();
             if (!links.contains(URL)) {
-                no_read = robot_file(URL);
-                for (int i = 0; i < no_read.capacity(); i++) {
-                    if (URL.contains(no_read.get(i)))
-                        break;
-                }
+            // check if this url is not in its host's robots file
+            Vector<String> no_read_vector = new Vector<String>(1, 1);
+                no_read_vector = robot_file( URL);
+            for (int i = 0; i < no_read_vector.capacity(); i++)
+            {
+                // if url contains any extension in the robots go out of the function
+                if( URL.contains( no_read_vector.get(i)))
+                         return;
+            }
+            System.out.println("fine you can fetc :)" );
 
                 try {
                     // 4. (i) If not add it to the index
@@ -109,6 +113,7 @@ class App {
                             if (page.attr("abs:href").contains(no_read_2.get(i)))
                                 break;
                         }
+                        // recursion: fetch each hyper link in the url 
                         getPageLinks(page.attr("abs:href"));
                     }
                 } catch (IOException e) {
@@ -117,6 +122,82 @@ class App {
 
             }
         }
+//------------------------------------ Robots.txt ------------------------------
+Vector<String> robot_file ( String url )  {
+    System.out.println("start :)" );
+    /// getting robot url through the host of the passed url
+    URL url_temp= null;
+    try {
+        url_temp = new URL(url );
+    } catch (MalformedURLException e) {
+        e.printStackTrace();
+    }
+    System.out.println("HOST" );
+    System.out.println(url_temp.getHost()  );
+    System.out.println("robot url" );
+    // prepare the url of the robot: protocol+ host + file
+    String robot_url ="https://"+ url_temp.getHost()+"/robots.txt"  ;
+    System.out.println(  robot_url);
+    // vector to store the disallow extenions in it
+     Vector<String> no_read_vector = new Vector<String>(1, 1);
+     // read robots.txt file
+    try(BufferedReader my_buffer = new BufferedReader(
+            new InputStreamReader(new URL( robot_url ). openStream()))) {
+        String line = null;
+        int m = 0;
+        // FLAG: true if it is User-Agent: * otherwise we won't save the lines under it so reset the flag
+        // till we find another "User-Agent" to save disallow lines under it
+        boolean user_agent = true;
+       while ((line = my_buffer.readLine()) != null) {
+            if (m == 0) {
+                System.out.println("i am in the loop");
+                m++;
+            }
+            /// make sure that we don't follow any user agent => it must be *
+            // each line contain uder agent 
+            if (line.contains("User-Agent") || line.contains("User-agent:")) {
+                System.out.println("i am containing user agent");
+                // if all agents * =>>  so we will store
+                if (line.equals("User-Agent: *") || line.equals("User-agent: *")) {
+                    user_agent = true;
+                    System.out.println("i am user agent *********");
+                }
+             // if other user agents specified yahoo, google... set user_agent=false so:
+            // we don't store any line till you find another user agent line   
+                else {
+                    user_agent = false;
+                    System.out.println("i am yahoooooooooo");
+                    System.out.println(line);
+                }
+    //  skip this iteration anyway because we don't store user-agent line we store lines after it
+                continue;
+            }
+            ///storing words that really we can not read + make sure it is your user agent == true
+            if (user_agent && !(line.contains("User-Agent: *")) && !(line.contains("Sitemap:")) && !(line.contains("Allow:"))) {
+                System.out.println("i am NOT user agent line");
+                // System.out.println( line);
+                no_read_vector.add(line.substring(9));
+
+            }
+        }
+//           System.out.println("i am out of the loop");
+//
+//           for (int i = 0; i < no_read_vector.capacity(); i++) {
+//               if (i == 0)
+//                   System.out.println("print vector");
+//
+//               System.out.println(no_read_vector.get(i));
+//
+//
+//           }
+        System.out.println("vector done");
+    }
+    catch (IOException e) {
+       System.out.println("throwing exception!!!!!!!!" );
+         e.printStackTrace();
+     }
+     return no_read_vector;
+ }
 
         
         
@@ -204,37 +285,5 @@ class App {
         }
 
         
-        Vector<String> robot_file(String url) throws MalformedURLException {
-            Vector<String> v = new Vector<String>(1, 1);
-            URL url1 = new URL(url);
-            String ss = url1.getHost() + "/robots.txt";
-            try (BufferedReader my_buffer = new BufferedReader(
-
-                    new InputStreamReader(new URL(ss).openStream()))) {
-                String line = null;
-                String never_read_me = null;
-
-                while ((line = my_buffer.readLine()) != null) {
-                    System.out.println(line);
-                    if (line.contains("User-Agent: *")) {
-                        System.out.println(" i am in user agent");
-                        line = my_buffer.readLine();
-                        while (line != "User-Agent: *" && line != "") {
-                            System.out.println("i am the line " + line);
-                            never_read_me = line.substring(10);
-                            System.out.println("never_read_me " + never_read_me);
-                            v.add(never_read_me);
-                        }
-                        line = my_buffer.readLine();
-                    }
-
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            // System.out.println("robot finished");
-            return v;
-        }
-        // boolean can_read ( stri)
-    }
+       
 }
