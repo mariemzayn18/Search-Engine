@@ -38,11 +38,19 @@ public class Indexer {
         } catch (IOException e) {
             System.out.println(e);
         }
+        String[] words = str.split("\\s+");
+        for (int i = 0; i < words.length; i++) {
+            words[i] = words[i].replaceAll("[^\\w]", "");
+        }
 
         Stemmer Stem = new Stemmer();
 
-        Stem.add(str.toCharArray(), str.toCharArray().length);
+        for (int i=0;i<words.length;i++ ){
+            Stem.add(words[i].toCharArray(), words[i].toCharArray().length);
 
+        }
+        
+        Stem.stem();
         // if (Character.isLetter((char) ch))
         // {
         // int j = 0;
