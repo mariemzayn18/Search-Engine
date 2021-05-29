@@ -1,0 +1,12 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "e:\\second semster\\AP\\git project\\Search-Engine\\lib\\jsoup-1.13.1.jar",
+        "e:\\second semster\\AP\\git project\\Search-Engine\\lib\\jsoup-1.13.1-javadoc.jar",
+        "e:\\second semster\\AP\\git project\\Search-Engine\\lib\\jsoup-1.13.1-sources.jar",
+        "e:\\second semster\\AP\\git project\\Search-Engine\\lib\\mongo-java-driver-3.12.4.jar"
+    ],
+    "java.project.sourcePaths": [
+        ""
+    ]
+}
