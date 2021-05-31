@@ -1,23 +1,39 @@
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
-import org.jsoup.nodes.Document;
+
+import com.mongodb.client.MongoCursor;
+
 
 public class Indexer {
+    DataBaseMaster dbMaster = new DataBaseMaster();
+     
+//    List<org.bson.Document> list = new ArrayList<org.bson.Document>();
+    Hashtable<String,List<org.bson.Document>> Indexer = new Hashtable<String,List<org.bson.Document>>();
+    Indexer(){
+          
+       try {
+        MongoCursor<org.bson.Document> it = dbMaster.retriveDocuments().iterator();
+        while (it.hasNext()){
+            indexing(((org.bson.Document)(it.next())).get("Document").toString(), ((org.bson.Document)(it.next())).get("URL").toString());
+        }
+       } catch (Exception e) {
+           System.out.println(e);
+       } 
+       dbMaster.insertDocs(Indexer);
 
-    public void indexer(Document Doc) {
-
+    }
+    public void indexing(String Doc,String URL) {
         // -----------------------------Indexer--------------------------------
 
         // TODO 1-Remove HTML Tags(Done)
-        // 2-making array of unwanted text(is , are ,,,etc)
+        // 2-making array of unwanted text(is , are ,,,etc)(Done)
         // 3-make Stemmer(Done)
         // 4-make periority using TF-IDF
         // UNTIL NOWWWWWW !!!!
 
         // Remove Tags
-        String str = Doc.toString();
+        String str = Doc;
         str = str.replaceAll("(<style.+?</style>)", "");
         str = str.replaceAll("(?s)<script.*?(/>|</script>)", "");
         str = str.replaceAll("(?s)<head.*?(/>|</head>)", "");
@@ -41,50 +57,20 @@ public class Indexer {
         String[] words = str.split("\\s+");
         for (int i = 0; i < words.length; i++) {
             words[i] = words[i].replaceAll("[^\\w]", "");
+            System.out.println();
         }
 
         Stemmer Stem = new Stemmer();
-
         for (int i=0;i<words.length;i++ ){
             Stem.add(words[i].toCharArray(), words[i].toCharArray().length);
-
+            Stem.stem();
+            org.bson.Document indexed = new org.bson.Document("Indexed",Stem.toString()).append("URL", URL).append("TF", 1);
+            List<org.bson.Document> doc = Indexer.get(Stem.toString());
+            doc.add(indexed);
         }
+
+      
         
-        Stem.stem();
-        // if (Character.isLetter((char) ch))
-        // {
-        // int j = 0;
-        // while(true)
-        // { ch = Character.toLowerCase((char) ch);
-        // w[j] = (char) ch;
-        // if (j < 500) j++;
-        // ch = in.read();
-        // if (!Character.isLetter((char) ch))
-        // {
-        // /* to test add(char ch) */
-        // for (int c = 0; c < j; c++) s.add(w[c]);
-
-        // /* or, to test add(char[] w, int j) */
-        // /* s.add(w, j); */
-
-        // s.stem();
-        // { String u;
-
-        // /* and now, to test toString() : */
-        // u = s.toString();
-
-        // /* to test getResultBuffer(), getResultLength() : */
-        // /* u = new String(s.getResultBuffer(), 0, s.getResultLength()); */
-
-        // System.out.print(u);
-        // }
-        // break;
-        // }
-        // }
-        // }
-
-        // }
-
     }
 
 }
