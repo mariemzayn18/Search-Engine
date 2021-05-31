@@ -40,14 +40,20 @@ public class DataBaseMaster {
 
     }
 
-    public FindIterable<Document> retriveDocuments() {
-
+    public List<Document> retriveDocuments() {
         MongoCollection<Document> collection = database.getCollection("WebCrawler");
-        return collection.find();
+        FindIterable<Document> iterDoc = collection.find();
+        MongoCursor<Document> it = iterDoc.iterator();
+        List<Document> list = new ArrayList<>();
+
+        while (it.hasNext()) {
+            list.add((Document) (it.next()));
+        }
+        return list;
 
     }
 
-    public Document found(String paramName, String Checking, String collectionname) {
+    public boolean found(String paramName, String Checking, String collectionname) {
         MongoCollection<Document> collection = database.getCollection(collectionname);
         BasicDBObject whereQuery = new BasicDBObject();
         whereQuery.put(paramName, Checking);
@@ -55,10 +61,10 @@ public class DataBaseMaster {
         FindIterable<Document> cursor = collection.find(whereQuery);
         MongoCursor<Document> iterator = cursor.iterator();
 
-        if (cursor != null) {
-            return iterator.next();
-        }
-        return null;
+        if (iterator.next() != null) {
+            return true;
+        } else
+            return false;
 
     }
 
@@ -71,41 +77,21 @@ public class DataBaseMaster {
 
     }
 
-    public void insertDocument(String Indexed, float TF, String URL) {
-        MongoCollection<Document> collection = database.getCollection("Indexers");
-        Document document = new Document("Index", Indexed).append("URL", URL).append("TF", TF);
-        // check if exist already(if yes just append it)
-        Document found = found("Index", Indexed, "Indexers");
-        if (found != null) {
-            found.append("Document", document);
-            collection.findOneAndReplace(new Document("Index", Indexed), found);
-            System.out.println("indexer Updated successfully");
-            return;
-        }
-        // Inserting document into the collection
-        collection.insertOne(document);
-        System.out.println("indexer inserted successfully");
-
-    }
-
+  
     public void insertDocs(Hashtable<String, List<Document>> Table) {
         MongoCollection<Document> collection = database.getCollection("Indexers");
-        Enumeration<String> enumeration = Table.keys();
         List<Document> docs = new ArrayList<Document>();
-        // iterate using enumeration object
-        while (enumeration.hasMoreElements()) {
-
-            String key = enumeration.nextElement();
+        for (String key : Table.keySet()) {
             Document document = new Document("Word", key);
             for (int i = 0; i < Table.get(key).size(); i++) {
-                String data = Table.get(key).get(i).toString();
-                int indexTF = data.indexOf("TF");
-                int url = data.indexOf("URL");
+                Document data = Table.get(key).get(i);
+                String url = String.valueOf(data.get("URL"));
                 document.append("URL", url);
-                document.append("TF", indexTF);
+                document.append("TF", 1);
             }
             docs.add(document);
         }
+        collection.insertMany(docs);
 
     }
 }

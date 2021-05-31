@@ -1,9 +1,6 @@
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
-
-import com.mongodb.client.MongoCursor;
-
 public class Indexer {
     DataBaseMaster dbMaster = new DataBaseMaster();
 
@@ -11,17 +8,20 @@ public class Indexer {
     Hashtable<String, List<org.bson.Document>> Indexer = new Hashtable<String, List<org.bson.Document>>();
 
     Indexer() {
-
         try {
-            MongoCursor<org.bson.Document> it = dbMaster.retriveDocuments().iterator();
-            while (it.hasNext()) {
-                String url = ((org.bson.Document) (it.next())).get("URL").toString();
-                String doc = ((org.bson.Document) (it.next())).get("Document").toString();
+            List<org.bson.Document> Docs = dbMaster.retriveDocuments();
+            for (int i = 0 ; i < Docs.size();i++) {
+                String url = Docs.get(i).get("URL").toString();
+                System.out.println(url);
+                String doc = Docs.get(i).get("Document").toString();
                 indexing(doc, url);
+                System.out.println("HII2");
+
             }
         } catch (Exception e) {
             System.out.println(e);
         }
+        System.out.println("HII");
         dbMaster.insertDocs(Indexer);
 
     }
