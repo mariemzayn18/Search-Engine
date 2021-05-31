@@ -134,13 +134,13 @@ class webCrawler implements Runnable {
             // for the first URL to be saved
             if (!links.contains(URL)) {
                 // check if this url is not in its host's robots file
-//                Vector<String> no_read_vector = new Vector<String>(1, 1);
-//                no_read_vector = robot_file(URL);
-//                for (int i = 0; i < no_read_vector.capacity(); i++) {
-//                    // if url contains any extension in the robots go out of the function
-//                    if (URL.contains(no_read_vector.get(i)))
-//                        return;
-//                }
+               Vector<String> no_read_vector = new Vector<String>(1, 1);
+               no_read_vector = robot_file(URL);
+               for (int i = 0; i < no_read_vector.capacity(); i++) {
+                   // if url contains any extension in the robots go out of the function
+                   if (URL.contains(no_read_vector.get(i)))
+                       return;
+               }
 
                 if(links.add(URL))
                 {
@@ -268,9 +268,9 @@ class webCrawler implements Runnable {
 
     }
 
-    // ------------------------------------ Robots.txt
-    // ------------------------------
+    // ------------------------------------ Robots.txt ---------------------------
     Vector<String> robot_file(String url) {
+        int index=0;
         System.out.println("start :)");
         /// getting robot url through the host of the passed url
         URL url_temp = null;
@@ -296,11 +296,17 @@ class webCrawler implements Runnable {
             // so reset the flag
             // till we find another "User-Agent" to save disallow lines under it
             boolean user_agent = true;
-            while ((line = my_buffer.readLine()) != null) {
+            while ((line = my_buffer.readLine()) != null ) {
                 if (m == 0) {
                     System.out.println("i am in the loop");
                     m++;
                 }
+                index++;
+                System.out.println("i am line "  );
+                System.out.println(index );
+//ignore any comment in the file
+               if( line.startsWith("#") || line == "" || line == " ")
+               break;
                 /// make sure that we don't follow any user agent => it must be *
                 // each line contain uder agent
                 if (line.contains("User-Agent") || line.contains("User-agent:")) {
@@ -326,7 +332,8 @@ class webCrawler implements Runnable {
                 if (user_agent && !(line.contains("User-Agent: *")) && !(line.contains("Sitemap:"))
                         && !(line.contains("Allow:"))) {
                     System.out.println("i am NOT user agent line");
-                    // System.out.println( line);
+                     System.out.println( line);
+                    if(line.length()  >= 9  )
                     no_read_vector.add(line.substring(9));
 
                 }
