@@ -78,7 +78,9 @@ public class DataBaseMaster {
         Document found = found("Index", Indexed, "Indexers");
         if (found != null) {
             found.append("Document", document);
-            collection.updateOne(new Document("Index", Indexed), found);
+            collection.findOneAndReplace(new Document("Index", Indexed), found);
+            System.out.println("indexer Updated successfully");
+            return;
         }
         // Inserting document into the collection
         collection.insertOne(document);

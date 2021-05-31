@@ -4,26 +4,29 @@ import java.util.*;
 
 import com.mongodb.client.MongoCursor;
 
-
 public class Indexer {
     DataBaseMaster dbMaster = new DataBaseMaster();
-     
-//    List<org.bson.Document> list = new ArrayList<org.bson.Document>();
-    Hashtable<String,List<org.bson.Document>> Indexer = new Hashtable<String,List<org.bson.Document>>();
-    Indexer(){
-          
-       try {
-        MongoCursor<org.bson.Document> it = dbMaster.retriveDocuments().iterator();
-        while (it.hasNext()){
-            indexing(((org.bson.Document)(it.next())).get("Document").toString(), ((org.bson.Document)(it.next())).get("URL").toString());
+
+    // List<org.bson.Document> list = new ArrayList<org.bson.Document>();
+    Hashtable<String, List<org.bson.Document>> Indexer = new Hashtable<String, List<org.bson.Document>>();
+
+    Indexer() {
+
+        try {
+            MongoCursor<org.bson.Document> it = dbMaster.retriveDocuments().iterator();
+            while (it.hasNext()) {
+                String url = ((org.bson.Document) (it.next())).get("URL").toString();
+                String doc = ((org.bson.Document) (it.next())).get("Document").toString();
+                indexing(doc, url);
+            }
+        } catch (Exception e) {
+            System.out.println(e);
         }
-       } catch (Exception e) {
-           System.out.println(e);
-       } 
-       dbMaster.insertDocs(Indexer);
+        dbMaster.insertDocs(Indexer);
 
     }
-    public void indexing(String Doc,String URL) {
+
+    public void indexing(String Doc, String URL) {
         // -----------------------------Indexer--------------------------------
 
         // TODO 1-Remove HTML Tags(Done)
@@ -61,16 +64,19 @@ public class Indexer {
         }
 
         Stemmer Stem = new Stemmer();
-        for (int i=0;i<words.length;i++ ){
+        for (int i = 0; i < words.length; i++) {
             Stem.add(words[i].toCharArray(), words[i].toCharArray().length);
             Stem.stem();
-            org.bson.Document indexed = new org.bson.Document("Indexed",Stem.toString()).append("URL", URL).append("TF", 1);
-            List<org.bson.Document> doc = Indexer.get(Stem.toString());
+            String index = Stem.toString();
+            org.bson.Document indexed = new org.bson.Document("Indexed", index).append("URL", URL).append("TF", 1);
+            List<org.bson.Document> doc = Indexer.get(index);
+            if (doc == null) {
+                doc = new ArrayList<>();
+            }
             doc.add(indexed);
+            Indexer.put(Stem.toString(), doc);
         }
 
-      
-        
     }
 
 }
