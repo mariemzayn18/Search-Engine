@@ -68,6 +68,15 @@ public class DataBaseMaster {
 
     }
 
+    public void deleteDocument(String URL){
+
+        MongoCollection<Document> collection = database.getCollection("WebCrawler");
+
+        BasicDBObject document = new BasicDBObject();
+        document.put("URL", URL);
+        collection.deleteOne(document);
+        
+    }
     public void insertDocument(String documenString, String URL) {
         MongoCollection<Document> collection = database.getCollection("WebCrawler");
         Document document = new Document("Document", documenString).append("URL", URL);

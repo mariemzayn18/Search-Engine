@@ -3,7 +3,7 @@ import java.io.IOException;
 import java.util.*;
 public class Indexer {
     DataBaseMaster dbMaster = new DataBaseMaster();
-
+    int DOCs_Num;
     // List<org.bson.Document> list = new ArrayList<org.bson.Document>();
     Hashtable<String, List<org.bson.Document>> Indexer = new Hashtable<String, List<org.bson.Document>>();
 
@@ -12,6 +12,7 @@ public class Indexer {
             //reterive data from database
             List<org.bson.Document> Docs = dbMaster.retriveDocuments();
             //looping over the documents and urls and send them to function
+            DOCs_Num = Docs.size();
             for (int i = 0 ; i < Docs.size();i++) {
                 String url = Docs.get(i).get("URL").toString();
                 System.out.println(url);
