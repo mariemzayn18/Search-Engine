@@ -53,6 +53,8 @@ public class DataBaseMaster {
 
     }
 
+
+///////////////////////////////// check for duplicate documents \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public boolean found(String paramName, String Checking, String collectionname) {
         MongoCollection<Document> collection = database.getCollection(collectionname);
         BasicDBObject whereQuery = new BasicDBObject();

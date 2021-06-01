@@ -62,7 +62,6 @@ class webCrawler implements Runnable {
 
     public int Num;
     private HashSet<String> links;
-    private HashSet<Document> LinksDocuments;
 
     DataBaseMaster dbMaster = new DataBaseMaster();
     int currentCrawledPages;
@@ -77,7 +76,6 @@ class webCrawler implements Runnable {
     public webCrawler(int n, int currentCrawledPages, int maxCrawledPages, List<String> seeds) {
         Num = n;
         links = new HashSet<String>();
-        LinksDocuments = new HashSet<Document>();
 
         this.currentCrawledPages = currentCrawledPages;
         this.maxCrawledPages = maxCrawledPages;
@@ -112,8 +110,7 @@ class webCrawler implements Runnable {
                     FirstCrawling = false;
             }
         }
-        // else ///////////////////////////////// loop on the hash
-        // set/////////////////////////////////////////
+        // else ///////////////////////////////// loop on the hashset/////////////////////////////////////////
         // {
         // for (int i = 0; i < Num; i++) {
         // if (Integer.parseInt(Thread.currentThread().getName()) == i) {
@@ -132,6 +129,8 @@ class webCrawler implements Runnable {
         try {
             // System.out.println(URL);
 
+            Document document = Jsoup.connect(URL).get();
+
             // for the first URL to be saved
             if (!links.contains(URL)) {
                 // check if this url is not in its host's robots file
@@ -144,28 +143,30 @@ class webCrawler implements Runnable {
                 }
 
                 if (links.add(URL)) {
-                    // LinksDocuments.add(); /////////////add my document:((((((
-                    // w check lw hwa msh duplicate link firstttt
+                    // LinksDocuments.add(); /////////////add my document:(((((( --> donnee
+                    // w check lw hwa msh duplicate link firstttt --> done
+                    if (dbMaster.found("Document",document.toString(),"WebCrawler")) /// duplicate documents and different URLs, then save one URL only
+                    {
+                        return;
+                    }
                     currentCrawledPages++;
-
+                    dbMaster.insertDocument(document.toString(),URL);
                     System.out.println(URL + " my count= " + currentCrawledPages);
                 }
 
             }
             //// try catch
-            Document document = Jsoup.connect(URL).get();
-            dbMaster.insertDocument(document.toString(),URL);
+
+
             if (links.contains(URL) && !FirstCrawling) {
-                if (links.size() >= 5000) {
-                    ///////////////////// mhtagenn hena n update l document
-                    ///////////////////// bta3o/////////////////////////////
+                if (links.size() >= 200) {
+                    ///////////////////// mhtagenn hena n update l document bta3o/////////////////////////////
 
                     return;
                 }
 
                 else {
-                    ///////////////////// mhtagenn hena n update l document bta3o w nkamel shoghl
-                    ///////////////////// 3adyy/////////////////////////////
+                    ///////////////////// mhtagenn hena n update l document bta3o w nkamel shoghl 3adyy/////////////////////////////
 
                 }
             }
@@ -180,8 +181,7 @@ class webCrawler implements Runnable {
                 // page
 
                 if (!PageLink.equals(URL) && !links.contains(PageLink)) {
-                    //////////////////////////////// to be
-                    //////////////////////////////// checked/////////////////////////////////////////
+                    //////////////////////////////// to be checked/////////////////////////////////////////
                     // if (PageLink.contains(".com")||PageLink.contains(".net")||
                     //////////////////////////////// PageLink.contains(".org")||
                     //////////////////////////////// PageLink.contains(".co") ||
@@ -196,13 +196,11 @@ class webCrawler implements Runnable {
                 }
 
                 // 2- In the recrawling & not the first visit for the page && the set is full
-                // ///////////////////////////////// add condition for recrawling
-                // //////////////////////////////////////
-                // revisit first those with the famous domain -->
-                else if (!PageLink.equals(URL) && links.contains(PageLink) && !FirstCrawling && links.size() >= 5000) {
+                // ///////////////////////////////// added condition for recrawling// //////////////////////////////////////
+                // revisit first those with the famous domains -->
+                else if (!PageLink.equals(URL) && links.contains(PageLink) && !FirstCrawling && links.size() >= 200) {
 
-                    if (PageLink.contains(".com") || PageLink.contains(".net") || PageLink.contains(".org")
-                            || PageLink.contains(".co") || PageLink.contains(".us")) {
+                    if (PageLink.contains(".com") || PageLink.contains(".net") || PageLink.contains(".org") || PageLink.contains(".co") || PageLink.contains(".us")) {
                         getPageLinks(PageLink);
                     }
                 }
@@ -213,8 +211,7 @@ class webCrawler implements Runnable {
                 // not sure KHALESSSSS BTW
                 else if (!PageLink.equals(URL) && links.contains(PageLink) && !FirstCrawling) {
 
-                    if ((PageLink.contains(".com") || PageLink.contains(".net") || PageLink.contains(".org")
-                            || PageLink.contains(".co") || PageLink.contains(".us")) == false) {
+                    if ((PageLink.contains(".com") || PageLink.contains(".net") || PageLink.contains(".org") || PageLink.contains(".co") || PageLink.contains(".us")) == false) {
                         getPageLinks(PageLink);
                     }
                 }
@@ -236,16 +233,17 @@ class webCrawler implements Runnable {
         }
     }
 
-    public void AddToLinks(String URL, Document LinkData) {
+    public void AddToLinks(String URL, Document document) {
 
-        if (links.size() < 5000) {
-            if (LinksDocuments.contains(LinkData)) /// duplicate documents and different URLs, then save one URL only
+        if (links.size() < 200) {
+            if (dbMaster.found("Document",document.toString(),"WebCrawler")) /// duplicate documents and different URLs, then save one URL only
             {
                 return;
             }
 
             if (links.add(URL)) {
-                LinksDocuments.add(LinkData);
+               // LinksDocuments.add(document);
+                dbMaster.insertDocument(document.toString(),URL);
                 currentCrawledPages++; /////////////// remove this counter//////////////////////////
                 System.out.println(URL + " my count= " + currentCrawledPages);
 
@@ -259,8 +257,7 @@ class webCrawler implements Runnable {
 
             }
 
-        } else if (links.size() >= 200) { ////////////////////////////// hash set exceeds the 5000 links
-                                          ////////////////////////////// /////////////////////////////
+        } else if (links.size() >= 200) { ////////////////////////////// hash set exceeds the 5000 links////////////////////////////// /////////////////////////////
             System.out.println("I'm here to be recrawled");
             currentCrawledPages = 0;
             FirstCrawling = false;
