@@ -52,6 +52,23 @@ public class DataBaseMaster {
 
     }
 
+    public List<Document> retriveIndexes() {
+        MongoCollection<Document> collection = database.getCollection("Indexers");
+        FindIterable<Document> iterDoc = collection.find();
+        MongoCursor<Document> it = iterDoc.iterator();
+        List<Document> list = new ArrayList<>();
+
+        while (it.hasNext()) {
+            list.add((Document) (it.next()));
+        }
+        BasicDBObject document = new BasicDBObject();
+
+        // Delete All documents from collection Using blank BasicDBObject
+        collection.deleteMany(document);
+        return list;
+
+    }
+
     ///////////////////////////////// check for duplicate documents
     ///////////////////////////////// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public boolean found(String paramName, String Checking, String collectionname) {
