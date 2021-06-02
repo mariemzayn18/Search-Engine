@@ -18,7 +18,8 @@ public class Indexer {
 
             List<org.bson.Document> DB_Indexers = dbMaster.retriveIndexes();
             // looping over the Words and urls and Save Thme
-            for (int i = 0; i < DB_Indexers.size(); i++) {
+            for (int i = 0; i < DB_Indexers.size(); i++) 
+            {
                 String url = DB_Indexers.get(i).get("URL").toString();
                 String iString = DB_Indexers.get(i).get("Word").toString();
                 int TF = Integer.valueOf(DB_Indexers.get(i).get("priority").toString());
@@ -56,7 +57,7 @@ public class Indexer {
         } catch (Exception e) {
             System.out.println(e);
         }
-        dbMaster.insertDocs(Indexer, Unique_words);
+        dbMaster.insertDocs(Indexer, Unique_words,Spam_URLs);
 
     }
 
@@ -134,6 +135,7 @@ public class Indexer {
             if (TF > 0.5) {
                 // It's a SPAM store it in spam vector to delete them before adding to DB
                 Spam_URLs.add(URL);
+                dbMaster.deleteDocument(URL);
                 System.out.println("Delete me ");
                 // don't save more words of this url it will be deleted! so return
                 return;

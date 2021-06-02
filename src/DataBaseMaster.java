@@ -107,18 +107,20 @@ public class DataBaseMaster {
     }
 
     // insert the final hasht able into data base
-    public void insertDocs(Hashtable<String, List<Document>> Table,Vector<String> Unique_words) {
+    public void insertDocs(Hashtable<String, List<Document>> Table,Vector<String> Unique_words, Vector<String> Spam_URLs) {
         MongoCollection<Document> collection = database.getCollection("Indexers");
         List<Document> docs = new ArrayList<Document>();
         for (String key : Table.keySet()) {
             Document document = new Document("Word", key);
-            for (int i = 0; i < Table.get(key).size(); i++) {
+            for (int i = 0; i < Table.get(key).size(); i++) 
+            {
 
                 Document data = Table.get(key).get(i);
                 String url = String.valueOf(data.get("URL"));
-                // chcek if this url contains spam skip this url and don't insert it into DB
-//                if (MyIndxer.Spam_URLs.contains(url))
-//                    break;
+        //chcek if this url contains spam skip this url and don't insert it into DB
+                if (Spam_URLs.contains(url))
+                    continue;
+
                 document.append("URL", url);
                 // note didn't sort the list yet :(
                 document.append("priority", data.get("priority"));

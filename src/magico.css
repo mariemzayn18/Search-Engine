@@ -1,0 +1,110 @@
+  .container-out {
+    font-family: "Fira Sans", sans-serif;
+    padding: 15px 0;
+    }
+    
+    .container-in {
+    width: 95%;
+    margin: 0 auto;
+    height: 50%;
+    }
+    
+    .search-container {
+    position: relative;
+    max-width: 300px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 5px;
+    
+    height: 80%;
+
+    }
+    
+    .search-title {
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: #1ca0b8;
+    }
+    #search-engine{
+        height: 50%;
+
+    }
+    #search-input {
+    width: 100%;
+    padding: 15px;
+    border-radius: 10px;
+    border: 2px solid #e07543;
+    font-size: 15px;
+    margin-bottom: 10px;
+    margin-left: -50px;
+    margin-top: 30px;
+    width: 500px;
+    left:50%;
+top:25%;
+ 
+    }
+    
+    #search-input:focus {
+    outline: none;
+    }
+    
+    #search-results {
+    position: absolute;
+    z-index: 10;
+    margin: 1px auto;
+    background: #1ca0b8;
+    width: 90%;
+    text-align: left;
+    border-radius: 4px;
+    border: 2px solid #1ca0b8;
+    display: none;
+    }
+    .search-item {
+    color: white;
+    cursor: pointer;
+    }
+    .search-item p {
+    margin: 0;
+    padding: 10px;
+    }
+    .search-item:hover {
+    background: #2cc7e2;
+    }
+    #search-data {
+    margin-top: 10px;
+    color: #1ca0b8;
+    }
+    #search-data p {
+    margin: 0;
+    padding: 6px;
+    font-size: 16px;
+    }
+    img {
+        position: relative;
+        border-radius: 50%;
+        margin-right: 50%;
+        margin-bottom: 10px;
+        width: 700px;
+        position:relative; 
+        left:450px;
+        text-align: center;
+      }
+      button {
+        background-color: #e07543;  
+        margin-top: 30px;
+        border-radius: 50%;
+        border: none;
+        color: white;
+        padding: 10px 50px;
+        text-align: center;
+        text-decoration: white ;
+        display: inline-block;
+        font-size: 24x;
+        right: 70%;
+        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+      }
+      .button:hover {
+        background-color:#f3ac8b; 
+        color: white;
+      }
+   
