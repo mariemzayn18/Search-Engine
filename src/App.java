@@ -32,7 +32,7 @@ class App {
 
         List<String> seeds = new ArrayList<String>();
 
-        File Seedsfile = new File("src/Seeds.txt");
+        File Seedsfile = new File("E:\\2nd year- 2nd term\\Advanced programming\\ap_proj\\Search-Engine\\src\\Seeds.txt");
         Scanner SeedsSc = new Scanner(Seedsfile);
 
         while (SeedsSc.hasNextLine()) {
@@ -108,7 +108,6 @@ class webCrawler implements Runnable {
                     /////////////////////////////// feh haga hena msh sa777 mafrod lama yrga3
                     /////////////////////////////// myrg3sh mn l awal
                     /////////////////////////////// tanyy///////////////////////////
-                   
                     myUrl = seeds.get(i);
                     getPageLinks(this.myUrl);
                     // System.out.println ("Thread "+ Thread.currentThread().getName() + "
@@ -183,7 +182,7 @@ class webCrawler implements Runnable {
 
                 // 2- In the recrawling & not the first visit for the page && the set is full
                 // revisit first those with the famous domains -->
-                else if (!PageLink.equals(URL) && links.contains(PageLink) && !FirstCrawling && links.size() >= 200) {
+                else if (!PageLink.equals(URL) && links.contains(PageLink) && !FirstCrawling && links.size() >= 2) {
 
                     if (PageLink.contains(".com") || PageLink.contains(".net") || PageLink.contains(".org") || PageLink.contains(".co") || PageLink.contains(".us")) {
                         getPageLinks(PageLink);
@@ -202,12 +201,13 @@ class webCrawler implements Runnable {
                 }
 
                 // 4- Stop and recrawl
-                else if (links.size() >= 200) {
+                else if (links.size() >= 2) {
                     System.out.println("I'm here to be recrawled");
                     currentCrawledPages = 0;
                     FirstCrawling = false;
+                    Thread.currentThread().interrupt();
                     Indexer MYindexer = new Indexer();
-                    //App.crawling(Num, this);
+                   // App.crawling(Num, this);
                 }
 
                 // getPageLinks(PageLink);
@@ -221,7 +221,7 @@ class webCrawler implements Runnable {
     public void AddToLinks(String URL, Document document) {
         synchronized (this) {
             System.out.println("I have the lock and I'm thread"+Thread.currentThread().getName());
-            if (links.size() < 200) {
+            if (links.size() < 2) {
                 if (dbMaster.found("Document",document.toString(),"WebCrawler")){ /// duplicate documents and different URLs, then save one URL only{
                     System.out.println("Database already contains this document");
                     return;
@@ -233,26 +233,28 @@ class webCrawler implements Runnable {
                     currentCrawledPages++; /////////////// remove this counter//////////////////////////
                     System.out.println(URL + " my count= " + links.size());
 
-                    if (links.size() >= 200) {
+                    if (links.size() >= 2) {
                         System.out.println("I'm here to be recrawled");
                         currentCrawledPages = 0;
                         FirstCrawling = false;
-                        //App.crawling(Num, this);
+                        Thread.currentThread().interrupt();
+
                         Indexer Myindexing = new Indexer();
+                      //  App.crawling(Num, this);
                     } else{
                         System.out.println("I left the lock "+Thread.currentThread().getName());
                         return;
 
                     }
-
                 }
 
-            } else if (links.size() >= 200) { ////////////////////////////// hash set exceeds the 5000 links////////////////////////////// /////////////////////////////
+            } else if (links.size() >= 2) { ////////////////////////////// hash set exceeds the 5000 links////////////////////////////// /////////////////////////////
                 System.out.println("I'm here to be recrawled");
                 currentCrawledPages = 0;
                 FirstCrawling = false;
-                // Thread.currentThread().stop();
-                App.crawling(Num, this);
+                Thread.currentThread().interrupt();
+                Indexer Myindexing = new Indexer();
+               // App.crawling(Num, this);
             }
         }
     }
@@ -339,7 +341,7 @@ class webCrawler implements Runnable {
             System.out.println("vector done");
         } catch (IOException e) {
             System.out.println("throwing exception!!!!!!!!");
-           
+            e.printStackTrace();
         }
         return no_read_vector;
     }
