@@ -21,14 +21,14 @@ public class Indexer {
             for (int i = 0; i < DB_Indexers.size(); i++) {
                 String url = DB_Indexers.get(i).get("URL").toString();
                 String iString = DB_Indexers.get(i).get("Word").toString();
-                int TF = DB_Indexers.get(i).get("priority");
-                org.bson.Document Word_Value = new org.bson.Document("Word", myword).append("URL", URL).append("priority",
+                int TF = Integer.valueOf(DB_Indexers.get(i).get("priority").toString());
+                org.bson.Document Word_Value = new org.bson.Document("Word", iString).append("URL", url).append("priority",
                 TF);
                 List<org.bson.Document> doc = Indexer.get(iString);
                 if (doc == null) {
                     doc = new ArrayList<>();
                 }
-                doc.add(Inserted);
+                doc.add(Word_Value);
                 Indexer.put(iString, doc);
             }
             // looping over the documents and urls and send them to function

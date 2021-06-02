@@ -154,6 +154,14 @@ public class DataBaseMaster {
 
     }
 
+    public void DeleteAllDocs(String collectionname){
+        MongoCollection<Document> collection = database.getCollection(collectionname);
+        BasicDBObject document = new BasicDBObject();
+
+        // Delete All documents from collection Using blank BasicDBObject
+        collection.deleteMany(document);
+        return ;
+    }
     public void UpdateDocument(String URL, String Document) {
 
         MongoCollection<Document> collection = database.getCollection("WebCrawler");
