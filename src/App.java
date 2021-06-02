@@ -15,14 +15,17 @@ class App {
 
     public static int currentCrawledPages = 0;
     public static int maxCrawledPages = 3; // change to 5000
+
     // ----------------------------------------------------------
 
     public static void main(String[] args) throws InterruptedException, FileNotFoundException {
 
+        DataBaseMaster dbMaster = new DataBaseMaster();
+
         Scanner sc = new Scanner(System.in); // System.in is a standard input stream
         System.out.print("Enter the number of threads to take part in the crawling process--> ");
         int numberOfThreads = sc.nextInt();
-
+      //  dbMaster.DeleteAllDocs("WebCrawler");
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // ------------------------------------------- Mariem.... seeds
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// ---------------------------------------------------
@@ -72,6 +75,7 @@ class webCrawler implements Runnable {
     List<String> seeds;
 
     boolean FirstCrawling = true;
+    DataBaseMaster dbMaster = new DataBaseMaster();
 
     // boolean HasNoPriority=false;
 
@@ -83,6 +87,7 @@ class webCrawler implements Runnable {
         this.maxCrawledPages = maxCrawledPages;
         // this.myUrl=Url;
         this.seeds = seeds;
+
 
         ///////// ---------------------------NOT
         ///////// SURE----------------------------------////////
@@ -144,37 +149,16 @@ class webCrawler implements Runnable {
                         return;
                 }
 
-
-                // LinksDocuments.add(); /////////////add my document:(((((( --> donnee
-                // w check lw hwa msh duplicate link firstttt --> done
-
-//                if (dbMaster.found("Document",document.toString(),"WebCrawler")) /// duplicate documents and different URLs, then save one URL only
-//                {
-//                    return;
-//                }
-//                if (links.add(URL)) {
-//                    currentCrawledPages++;
-//                    //dbMaster.insertDocument(document.toString(),URL);
-//                    System.out.println(URL + " my count= " + links.size());
-//                }
                 AddToLinks(URL,document);
 
             }
-            //// try catch
 
 
             if (links.contains(URL) && !FirstCrawling) {
-                if (links.size() >= 200) {
-                    ///////////////////// mhtagenn hena n update l document bta3o/////////////////////////////
-
-                    return;
-                }
-
-                else {
                     ///////////////////// mhtagenn hena n update l document bta3o w nkamel shoghl 3adyy/////////////////////////////
-
+                    dbMaster.UpdateDocument(URL,document.toString());
                 }
-            }
+
 
             Elements linksOnPage = document.select("a[href]");
 
@@ -186,22 +170,17 @@ class webCrawler implements Runnable {
                 // page
 
                 if (!PageLink.equals(URL) && !links.contains(PageLink)) {
-                    //////////////////////////////// to be checked/////////////////////////////////////////
-                    // if (PageLink.contains(".com")||PageLink.contains(".net")||
-                    //////////////////////////////// PageLink.contains(".org")||
-                    //////////////////////////////// PageLink.contains(".co") ||
-                    //////////////////////////////// PageLink.contains(".us"))
+
                     {
-                        if (!links.contains(PageLink)) {
-                            AddToLinks(PageLink, document);
-                        }
+//                        if (!links.contains(PageLink)) {
+//                            AddToLinks(PageLink, document);
+//                        }
                         // System.out.println(links.size());
                         getPageLinks(PageLink);
                     }
                 }
 
                 // 2- In the recrawling & not the first visit for the page && the set is full
-                // ///////////////////////////////// added condition for recrawling// //////////////////////////////////////
                 // revisit first those with the famous domains -->
                 else if (!PageLink.equals(URL) && links.contains(PageLink) && !FirstCrawling && links.size() >= 200) {
 
@@ -228,8 +207,6 @@ class webCrawler implements Runnable {
                     FirstCrawling = false;
                     // Indexer MYindexer = new Indexer();
                     App.crawling(Num, this);
-
-
                 }
 
                 // getPageLinks(PageLink);
@@ -242,20 +219,20 @@ class webCrawler implements Runnable {
 
     public void AddToLinks(String URL, Document document) {
         synchronized (this) {
-            System.out.println("I have the lock and I'm "+Thread.currentThread().getName());
+            System.out.println("I have the lock and I'm thread"+Thread.currentThread().getName());
             if (links.size() < 200) {
-//            if (dbMaster.found("Document",document.toString(),"WebCrawler")) /// duplicate documents and different URLs, then save one URL only
-//            {
-//                return;
-//            }
+                if (dbMaster.found("Document",document.toString(),"WebCrawler")){ /// duplicate documents and different URLs, then save one URL only{
+                    System.out.println("Database already contains this document");
+                    return;
+                }
 
                 if (links.add(URL)) {
-                    // LinksDocuments.add(document);
-                    //   dbMaster.insertDocument(document.toString(),URL);
+
+                    dbMaster.insertDocument(document.toString(),URL);
                     currentCrawledPages++; /////////////// remove this counter//////////////////////////
                     System.out.println(URL + " my count= " + links.size());
 
-                    if (currentCrawledPages >= 200) {
+                    if (links.size() >= 200) {
                         System.out.println("I'm here to be recrawled");
                         currentCrawledPages = 0;
                         FirstCrawling = false;
@@ -281,7 +258,7 @@ class webCrawler implements Runnable {
     // ------------------------------------ Robots.txt ---------------------------
     Vector<String> robot_file(String url) {
         int index = 0;
-        System.out.println("start :)");
+       // System.out.println("start :)");
         /// getting robot url through the host of the passed url
         URL url_temp = null;
         try {
@@ -289,8 +266,8 @@ class webCrawler implements Runnable {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        System.out.println("HOST");
-        System.out.println(url_temp.getHost());
+       // System.out.println("HOST");
+        //System.out.println(url_temp.getHost());
         System.out.println("robot url");
         // prepare the url of the robot: protocol+ host + file
         String robot_url = "https://" + url_temp.getHost() + "/robots.txt";
@@ -311,26 +288,26 @@ class webCrawler implements Runnable {
                     m++;
                 }
                 index++;
-                System.out.println("i am line ");
-                System.out.println(index);
+     //           System.out.println("i am line ");
+       //         System.out.println(index);
                 // ignore any comment in the file
                 if (line.startsWith("#") || line == "" || line == " ")
                     break;
                 /// make sure that we don't follow any user agent => it must be *
                 // each line contain uder agent
                 if (line.contains("User-Agent") || line.contains("User-agent:")) {
-                    System.out.println("i am containing user agent");
+         //           System.out.println("i am containing user agent");
                     // if all agents * =>> so we will store
                     if (line.equals("User-Agent: *") || line.equals("User-agent: *")) {
                         user_agent = true;
-                        System.out.println("i am user agent *********");
+           //             System.out.println("i am user agent *********");
                     }
                     // if other user agents specified yahoo, google... set user_agent=false so:
                     // we don't store any line till you find another user agent line
                     else {
                         user_agent = false;
-                        System.out.println("i am yahoooooooooo");
-                        System.out.println(line);
+             //           System.out.println("i am yahoooooooooo");
+            //         System.out.println(line);
                     }
                     // skip this iteration anyway because we don't store user-agent line we store
                     // lines after it
@@ -340,8 +317,8 @@ class webCrawler implements Runnable {
                 /// == true
                 if (user_agent && !(line.contains("User-Agent: *")) && !(line.contains("Sitemap:"))
                         && !(line.contains("Allow:"))) {
-                    System.out.println("i am NOT user agent line");
-                    System.out.println(line);
+            //        System.out.println("i am NOT user agent line");
+              //      System.out.println(line);
                     if (line.length() >= 9)
                         no_read_vector.add(line.substring(9));
 
