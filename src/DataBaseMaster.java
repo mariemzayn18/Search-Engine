@@ -16,7 +16,7 @@ public class DataBaseMaster {
 
     MongoClient mongo;
     MongoDatabase database;
-    Indexer MyIndxer = new Indexer();
+   // Indexer MyIndxer = new Indexer();
 
     DataBaseMaster() {
 
@@ -99,8 +99,8 @@ public class DataBaseMaster {
                 Document data = Table.get(key).get(i);
                 String url = String.valueOf(data.get("URL"));
                 // chcek if this url contains spam skip this url and don't insert it into DB
-                if (MyIndxer.Spam_URLs.contains(url))
-                    break;
+//                if (MyIndxer.Spam_URLs.contains(url))
+//                    break;
                 document.append("URL", url);
                 // note didn't sort the list yet :(
                 document.append("priority", data.get("priority"));

@@ -1,6 +1,9 @@
+
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -26,7 +29,7 @@ class App {
 
         List<String> seeds = new ArrayList<String>();
 
-        File Seedsfile = new File("src/Seeds.txt");
+        File Seedsfile = new File("E:\\2nd year- 2nd term\\Advanced programming\\ap_proj\\Search-Engine\\src\\Seeds.txt");
         Scanner SeedsSc = new Scanner(Seedsfile);
 
         while (SeedsSc.hasNextLine()) {
@@ -63,7 +66,6 @@ class webCrawler implements Runnable {
     public int Num;
     private HashSet<String> links;
 
-    DataBaseMaster dbMaster = new DataBaseMaster();
     int currentCrawledPages;
     int maxCrawledPages;
     String myUrl;
@@ -124,35 +126,38 @@ class webCrawler implements Runnable {
         // }
     }
 
-    public void getPageLinks(String URL) {
+    public void getPageLinks(String URL)  {
 
         try {
             // System.out.println(URL);
-
-            Document document = Jsoup.connect(URL).get();
+            Connection con = Jsoup.connect(URL).ignoreContentType(true); //////////// REMOOVVE
+            Document document = con.get();
 
             // for the first URL to be saved
             if (!links.contains(URL)) {
-                // check if this url is not in its host's robots file
+                //check if this url is not in its host's robots file
                 Vector<String> no_read_vector = new Vector<String>(1, 1);
                 no_read_vector = robot_file(URL);
-                for (int i = 0; i < no_read_vector.capacity(); i++) {
+                for (int i = 0; i < no_read_vector.size(); i++) {
                     // if url contains any extension in the robots go out of the function
                     if (URL.contains(no_read_vector.get(i)))
                         return;
                 }
 
-                if (links.add(URL)) {
-                    // LinksDocuments.add(); /////////////add my document:(((((( --> donnee
-                    // w check lw hwa msh duplicate link firstttt --> done
-                    if (dbMaster.found("Document",document.toString(),"WebCrawler")) /// duplicate documents and different URLs, then save one URL only
-                    {
-                        return;
-                    }
-                    currentCrawledPages++;
-                    dbMaster.insertDocument(document.toString(),URL);
-                    System.out.println(URL + " my count= " + currentCrawledPages);
-                }
+
+                // LinksDocuments.add(); /////////////add my document:(((((( --> donnee
+                // w check lw hwa msh duplicate link firstttt --> done
+
+//                if (dbMaster.found("Document",document.toString(),"WebCrawler")) /// duplicate documents and different URLs, then save one URL only
+//                {
+//                    return;
+//                }
+//                if (links.add(URL)) {
+//                    currentCrawledPages++;
+//                    //dbMaster.insertDocument(document.toString(),URL);
+//                    System.out.println(URL + " my count= " + links.size());
+//                }
+                AddToLinks(URL,document);
 
             }
             //// try catch
@@ -217,13 +222,13 @@ class webCrawler implements Runnable {
                 }
 
                 // 4- Stop and recrawl
-                else if (currentCrawledPages >= 200) {
+                else if (links.size() >= 200) {
                     System.out.println("I'm here to be recrawled");
                     currentCrawledPages = 0;
                     FirstCrawling = false;
-                    Indexer MYindexer = new Indexer();
-                  //  App.crawling(Num, this);
-                
+                    // Indexer MYindexer = new Indexer();
+                    App.crawling(Num, this);
+
 
                 }
 
@@ -236,37 +241,41 @@ class webCrawler implements Runnable {
     }
 
     public void AddToLinks(String URL, Document document) {
+        synchronized (this) {
+            System.out.println("I have the lock and I'm "+Thread.currentThread().getName());
+            if (links.size() < 200) {
+//            if (dbMaster.found("Document",document.toString(),"WebCrawler")) /// duplicate documents and different URLs, then save one URL only
+//            {
+//                return;
+//            }
 
-        if (links.size() < 200) {
-            if (dbMaster.found("Document",document.toString(),"WebCrawler")) /// duplicate documents and different URLs, then save one URL only
-            {
-                return;
+                if (links.add(URL)) {
+                    // LinksDocuments.add(document);
+                    //   dbMaster.insertDocument(document.toString(),URL);
+                    currentCrawledPages++; /////////////// remove this counter//////////////////////////
+                    System.out.println(URL + " my count= " + links.size());
+
+                    if (currentCrawledPages >= 200) {
+                        System.out.println("I'm here to be recrawled");
+                        currentCrawledPages = 0;
+                        FirstCrawling = false;
+                        App.crawling(Num, this);
+                    } else{
+                        System.out.println("I left the lock "+Thread.currentThread().getName());
+                        return;
+
+                    }
+
+                }
+
+            } else if (links.size() >= 200) { ////////////////////////////// hash set exceeds the 5000 links////////////////////////////// /////////////////////////////
+                System.out.println("I'm here to be recrawled");
+                currentCrawledPages = 0;
+                FirstCrawling = false;
+                // Thread.currentThread().stop();
+                App.crawling(Num, this);
             }
-
-            if (links.add(URL)) {
-               // LinksDocuments.add(document);
-                dbMaster.insertDocument(document.toString(),URL);
-                currentCrawledPages++; /////////////// remove this counter//////////////////////////
-                System.out.println(URL + " my count= " + currentCrawledPages);
-
-                if (currentCrawledPages >= 200) {
-                    System.out.println("I'm here to be recrawled");
-                    currentCrawledPages = 0;
-                    FirstCrawling = false;
-                    App.crawling(Num, this);
-                } else
-                    return;
-
-            }
-
-        } else if (links.size() >= 200) { ////////////////////////////// hash set exceeds the 5000 links////////////////////////////// /////////////////////////////
-            System.out.println("I'm here to be recrawled");
-            currentCrawledPages = 0;
-            FirstCrawling = false;
-            // Thread.currentThread().stop();
-            App.crawling(Num, this);
         }
-
     }
 
     // ------------------------------------ Robots.txt ---------------------------
