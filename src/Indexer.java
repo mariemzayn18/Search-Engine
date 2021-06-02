@@ -18,7 +18,6 @@ public class Indexer {
 
             List<org.bson.Document> DB_Indexers = dbMaster.retriveIndexes();
             // looping over the Words and urls and Save Thme
-            System.out.println(DB_Indexers.size());
             for (int i = 0; i < DB_Indexers.size(); i++) {
                 String url = DB_Indexers.get(i).get("URL").toString();
                 String iString = DB_Indexers.get(i).get("Word").toString();
@@ -108,7 +107,7 @@ public class Indexer {
             String TheWord = Stem.toString();
             // update the array
             words[i] = TheWord;
-            System.out.print("hello i am in the indxer i am word " + words[i]);
+            //System.out.print("hello i am in the indxer i am word " + words[i]);
         }
         // ---------------- start calculating priority -------------------------
 

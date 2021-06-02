@@ -32,7 +32,7 @@ class App {
 
         List<String> seeds = new ArrayList<String>();
 
-        File Seedsfile = new File("E:\\2nd year- 2nd term\\Advanced programming\\ap_proj\\Search-Engine\\src\\Seeds.txt");
+        File Seedsfile = new File("src/Seeds.txt");
         Scanner SeedsSc = new Scanner(Seedsfile);
 
         while (SeedsSc.hasNextLine()) {
@@ -108,6 +108,7 @@ class webCrawler implements Runnable {
                     /////////////////////////////// feh haga hena msh sa777 mafrod lama yrga3
                     /////////////////////////////// myrg3sh mn l awal
                     /////////////////////////////// tanyy///////////////////////////
+                   
                     myUrl = seeds.get(i);
                     getPageLinks(this.myUrl);
                     // System.out.println ("Thread "+ Thread.currentThread().getName() + "
@@ -205,8 +206,8 @@ class webCrawler implements Runnable {
                     System.out.println("I'm here to be recrawled");
                     currentCrawledPages = 0;
                     FirstCrawling = false;
-                    // Indexer MYindexer = new Indexer();
-                    App.crawling(Num, this);
+                    Indexer MYindexer = new Indexer();
+                    //App.crawling(Num, this);
                 }
 
                 // getPageLinks(PageLink);
@@ -236,7 +237,8 @@ class webCrawler implements Runnable {
                         System.out.println("I'm here to be recrawled");
                         currentCrawledPages = 0;
                         FirstCrawling = false;
-                        App.crawling(Num, this);
+                        //App.crawling(Num, this);
+                        Indexer Myindexing = new Indexer();
                     } else{
                         System.out.println("I left the lock "+Thread.currentThread().getName());
                         return;
@@ -337,7 +339,7 @@ class webCrawler implements Runnable {
             System.out.println("vector done");
         } catch (IOException e) {
             System.out.println("throwing exception!!!!!!!!");
-            e.printStackTrace();
+           
         }
         return no_read_vector;
     }
