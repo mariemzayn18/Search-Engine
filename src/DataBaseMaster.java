@@ -6,9 +6,7 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 
 import com.mongodb.BasicDBObject;
@@ -18,7 +16,8 @@ public class DataBaseMaster {
 
     MongoClient mongo;
     MongoDatabase database;
-Indexer MyIndxer= new Indexer();
+    Indexer MyIndxer = new Indexer();
+
     DataBaseMaster() {
 
         try {
@@ -53,46 +52,43 @@ Indexer MyIndxer= new Indexer();
 
     }
 
-
-///////////////////////////////// check for duplicate documents \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    ///////////////////////////////// check for duplicate documents
+    ///////////////////////////////// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public boolean found(String paramName, String Checking, String collectionname) {
         MongoCollection<Document> collection = database.getCollection(collectionname);
         BasicDBObject whereQuery = new BasicDBObject();
         whereQuery.put(paramName, Checking);
 
-        FindIterable<Document> cursor = collection.find(whereQuery);
+        FindIterable<Document> cursor = collection.find(whereQuery).limit(1);
         MongoCursor<Document> iterator = cursor.iterator();
 
-        try{
-        if (iterator.next() != null) {
+        if (iterator.hasNext()) {
             return true;
-        }
-     } catch (Exception e){
+        } else
             return false;
-     }
-     return true;
 
     }
 
-    public void deleteDocument(String URL){
+    public void deleteDocument(String URL) {
 
         MongoCollection<Document> collection = database.getCollection("WebCrawler");
 
         BasicDBObject document = new BasicDBObject();
         document.put("URL", URL);
         collection.deleteOne(document);
-        
+
     }
+
     public void insertDocument(String documenString, String URL) {
         MongoCollection<Document> collection = database.getCollection("WebCrawler");
-        Document document = new Document("Document", documenString).append("URL", URL);
+        Document document = new Document("URL", URL).append("Document", documenString);
         // Inserting document into the collection
         collection.insertOne(document);
         System.out.println("Document inserted successfully");
 
     }
 
-  // insert the final hasht able into data base
+    // insert the final hasht able into data base
     public void insertDocs(Hashtable<String, List<Document>> Table) {
         MongoCollection<Document> collection = database.getCollection("Indexers");
         List<Document> docs = new ArrayList<Document>();
@@ -102,16 +98,53 @@ Indexer MyIndxer= new Indexer();
 
                 Document data = Table.get(key).get(i);
                 String url = String.valueOf(data.get("URL"));
-             // chcek if this url contains spam skip this url and don't insert it into DB
-                if (  MyIndxer.Spam_URLs.contains(url) )
-                  break;
+                // chcek if this url contains spam skip this url and don't insert it into DB
+                if (MyIndxer.Spam_URLs.contains(url))
+                    break;
                 document.append("URL", url);
                 // note didn't sort the list yet :(
-                document.append("priority", data.get("priority") );
+                document.append("priority", data.get("priority"));
             }
             docs.add(document);
         }
         collection.insertMany(docs);
 
     }
+
+    public List<Document> SearchIndex(String Index) {
+        Stemmer Stem = new Stemmer();
+        Stem.add(Index.toCharArray(), Index.toCharArray().length);
+        String Search = Stem.toString();
+        MongoCollection<Document> collection = database.getCollection("Indexers");
+        BasicDBObject whereQuery = new BasicDBObject();
+        whereQuery.put("Word", Search);
+
+        FindIterable<Document> cursor = collection.find(whereQuery);
+        MongoCursor<Document> iterator = cursor.iterator();
+        List<Document> docs = new ArrayList<Document>();
+        try {
+            while (iterator.hasNext()) {
+                docs.add(iterator.next());
+
+            }
+            if (docs.size() == 0) {
+                return null;
+            }
+            return docs;
+        } catch (Exception e) {
+            return null;
+        }
+
+    }
+
+    public void UpdateDocument(String URL, String Document) {
+
+        MongoCollection<Document> collection = database.getCollection("WebCrawler");
+        Document Updated = new Document("URL", URL).append("Document", Document);
+        collection.findOneAndReplace(new Document("URL", URL), Updated);
+        System.out.println("indexer Updated successfully");
+        return;
+
+    }
+
 }
