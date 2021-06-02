@@ -5,6 +5,7 @@ import java.util.*;
 //import DataBaseMaster;
 public class Indexer {
     DataBaseMaster dbMaster = new DataBaseMaster();
+    Vector<String> Unique_words = new Vector<String>();
     int DOCs_Num; // NO.OF DOCS IN DATABASE
     Vector<String> Spam_URLs = new Vector<String>();
     // List<org.bson.Document> list = new ArrayList<org.bson.Document>();
@@ -22,8 +23,8 @@ public class Indexer {
                 String url = DB_Indexers.get(i).get("URL").toString();
                 String iString = DB_Indexers.get(i).get("Word").toString();
                 int TF = Integer.valueOf(DB_Indexers.get(i).get("priority").toString());
-                org.bson.Document Word_Value = new org.bson.Document("Word", iString).append("URL", url).append("priority",
-                TF);
+                org.bson.Document Word_Value = new org.bson.Document("Word", iString).append("URL", url)
+                        .append("priority", TF);
                 List<org.bson.Document> doc = Indexer.get(iString);
                 if (doc == null) {
                     doc = new ArrayList<>();
@@ -56,7 +57,7 @@ public class Indexer {
         } catch (Exception e) {
             System.out.println(e);
         }
-        dbMaster.insertDocs(Indexer);
+        dbMaster.insertDocs(Indexer, Unique_words);
 
     }
 
@@ -115,7 +116,6 @@ public class Indexer {
         // this is a new map for each document call the function but the hash table
         // global for all the documents
         Map<String, Double> word_TF_Map = new HashMap<String, Double>();
-        Vector<String> Unique_words = new Vector<String>();
         for (String unique_word : words) {
 
             if (word_TF_Map.containsKey(unique_word)) {

@@ -8,6 +8,7 @@ import com.mongodb.client.MongoDatabase;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Vector;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
@@ -106,7 +107,7 @@ public class DataBaseMaster {
     }
 
     // insert the final hasht able into data base
-    public void insertDocs(Hashtable<String, List<Document>> Table) {
+    public void insertDocs(Hashtable<String, List<Document>> Table,Vector<String> Unique_words) {
         MongoCollection<Document> collection = database.getCollection("Indexers");
         List<Document> docs = new ArrayList<Document>();
         for (String key : Table.keySet()) {
