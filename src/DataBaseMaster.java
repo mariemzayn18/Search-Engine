@@ -18,7 +18,7 @@ public class DataBaseMaster {
 
     MongoClient mongo;
     MongoDatabase database;
-
+Indexer MyIndxer= new Indexer();
     DataBaseMaster() {
 
         try {
@@ -63,10 +63,14 @@ public class DataBaseMaster {
         FindIterable<Document> cursor = collection.find(whereQuery);
         MongoCursor<Document> iterator = cursor.iterator();
 
+        try{
         if (iterator.next() != null) {
             return true;
-        } else
+        }
+     } catch (Exception e){
             return false;
+     }
+     return true;
 
     }
 
@@ -88,17 +92,22 @@ public class DataBaseMaster {
 
     }
 
-  
+  // insert the final hasht able into data base
     public void insertDocs(Hashtable<String, List<Document>> Table) {
         MongoCollection<Document> collection = database.getCollection("Indexers");
         List<Document> docs = new ArrayList<Document>();
         for (String key : Table.keySet()) {
             Document document = new Document("Word", key);
             for (int i = 0; i < Table.get(key).size(); i++) {
+
                 Document data = Table.get(key).get(i);
                 String url = String.valueOf(data.get("URL"));
+             // chcek if this url contains spam skip this url and don't insert it into DB
+                if (  MyIndxer.Spam_URLs.contains(url) )
+                  break;
                 document.append("URL", url);
-                document.append("TF", 1);
+                // note didn't sort the list yet :(
+                document.append("priority", data.get("priority") );
             }
             docs.add(document);
         }

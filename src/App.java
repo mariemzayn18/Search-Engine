@@ -221,7 +221,9 @@ class webCrawler implements Runnable {
                     System.out.println("I'm here to be recrawled");
                     currentCrawledPages = 0;
                     FirstCrawling = false;
-                    App.crawling(Num, this);
+                    Indexer MYindexer = new Indexer();
+                  //  App.crawling(Num, this);
+                
 
                 }
 
