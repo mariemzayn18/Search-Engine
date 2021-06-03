@@ -25,7 +25,7 @@ class App {
         Scanner sc = new Scanner(System.in); // System.in is a standard input stream
         System.out.print("Enter the number of threads to take part in the crawling process--> ");
         int numberOfThreads = sc.nextInt();
-       // dbMaster.DeleteAllDocs("WebCrawler");
+      //  dbMaster.DeleteAllDocs("WebCrawler");
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // ------------------------------------------- Mariem.... seeds
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// ---------------------------------------------------
@@ -49,7 +49,7 @@ class App {
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         Runnable obj1 = new webCrawler(numberOfThreads, currentCrawledPages, maxCrawledPages, seeds);
-       crawling(numberOfThreads, obj1);
+        crawling(numberOfThreads, obj1);
 
     }
 
@@ -77,6 +77,9 @@ class webCrawler implements Runnable {
     boolean FirstCrawling = true;
     DataBaseMaster dbMaster = new DataBaseMaster();
     Vector<String> ignored_URLS= new Vector<String>();
+    int seeds_size;
+    int seeds_count;
+
 
     // boolean HasNoPriority=false;
 
@@ -88,7 +91,8 @@ class webCrawler implements Runnable {
         this.maxCrawledPages = maxCrawledPages;
         // this.myUrl=Url;
         this.seeds = seeds;
-
+        this.seeds_size=seeds.size();
+        this.seeds_count=0;
 
         ///////// ---------------------------NOT
         ///////// SURE----------------------------------////////
@@ -102,21 +106,27 @@ class webCrawler implements Runnable {
     }
 
     public void run() {
-        // if (FirstCrawling) //uncomment this
-        {
+
+        // virtual size to know when does the seeds end and stop threading process
+
+
+
+        while(seeds_size>0) {
             for (int i = 0; i < Num; i++) {
                 if (Integer.parseInt(Thread.currentThread().getName()) == i) {
-                    /////////////////////////////// feh haga hena msh sa777 mafrod lama yrga3
-                    /////////////////////////////// myrg3sh mn l awal
-                    /////////////////////////////// tanyy///////////////////////////
-                    myUrl = seeds.get(i);
-                    getPageLinks(this.myUrl);
+                    if(seeds_count<seeds.size()) { //actual size , and counter for seeds
+                        myUrl = seeds.get(seeds_count);
+                        seeds_count++;
+                        getPageLinks(this.myUrl);
+                    }
+
                     // System.out.println ("Thread "+ Thread.currentThread().getName() + "
                     // hellllo");
                 }
                 if (i == Num - 1)
                     FirstCrawling = false;
             }
+            seeds_size-=Num;
         }
         // else ///////////////////////////////// loop on the hashset/////////////////////////////////////////
         // {
@@ -183,7 +193,7 @@ class webCrawler implements Runnable {
 
                 // 2- In the recrawling & not the first visit for the page && the set is full
                 // revisit first those with the famous domains -->
-                else if (!PageLink.equals(URL) && links.contains(PageLink) && !FirstCrawling && links.size() >= 200 &&!ignored_URLS.contains(URL) ) {
+                else if (!PageLink.equals(URL) && links.contains(PageLink) && !FirstCrawling && links.size() >= maxCrawledPages &&!ignored_URLS.contains(URL) ) {
 
                     if (PageLink.contains(".com") || PageLink.contains(".net") || PageLink.contains(".org") || PageLink.contains(".co") || PageLink.contains(".us")) {
                         getPageLinks(PageLink);
@@ -202,12 +212,12 @@ class webCrawler implements Runnable {
                 }
 
                 // 4- Stop and recrawl
-                else if (links.size() >= 200) {
+                else if (links.size() >= maxCrawledPages) {
                     System.out.println("I'm here to be recrawled");
                     currentCrawledPages = 0;
                     FirstCrawling = false;
-                    // Indexer MYindexer = new Indexer();
-                    App.crawling(Num, this);
+                    Indexer myind=new Indexer(Num);
+                    // App.crawling(Num, this);
                 }
 
                 // getPageLinks(PageLink);
@@ -221,7 +231,7 @@ class webCrawler implements Runnable {
     public void AddToLinks(String URL, Document document) {
         synchronized (this) {
             System.out.println("I have the lock and I'm thread"+Thread.currentThread().getName());
-            if (links.size() < 200) {
+            if (links.size() < maxCrawledPages) {
 
                 String url_dup=dbMaster.found("Document",document.toString(),"WebCrawler");
 
@@ -236,13 +246,12 @@ class webCrawler implements Runnable {
                         ignored_URLS.add(URL);
 
                     System.out.println("Database already contains this document");
-                    if(links.size() >= 200) { ////////////////////////////// hash set exceeds the 5000 links////////////////////////////// /////////////////////////////
+                    if(links.size() >= maxCrawledPages) { ////////////////////////////// hash set exceeds the 5000 links////////////////////////////// /////////////////////////////
                         System.out.println("I'm here to be recrawled");
                         currentCrawledPages = 0;
                         FirstCrawling = false;
-                        // Thread.currentThread().stop();
-                        //Indexer myind=new Indexer();
-                        App.crawling(Num, this);
+                        Indexer myind=new Indexer(Num);
+                       // App.crawling(Num, this);
                     }
                     return;
                 }
@@ -256,13 +265,12 @@ class webCrawler implements Runnable {
                     System.out.println("I left the lock "+Thread.currentThread().getName());
                 }
 
-            } if(links.size() >= 200) { ////////////////////////////// hash set exceeds the 5000 links////////////////////////////// /////////////////////////////
+            } if(links.size() >= maxCrawledPages) { ////////////////////////////// hash set exceeds the 5000 links////////////////////////////// /////////////////////////////
                 System.out.println("I'm here to be recrawled");
                 currentCrawledPages = 0;
                 FirstCrawling = false;
-                // Thread.currentThread().stop();
-                //Indexer myind=new Indexer();
-                App.crawling(Num, this);
+                Indexer myind=new Indexer(Num);
+                //App.crawling(Num, this);
             }
             return;
         }
