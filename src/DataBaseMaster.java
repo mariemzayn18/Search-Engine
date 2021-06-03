@@ -72,7 +72,7 @@ public class DataBaseMaster {
 
     ///////////////////////////////// check for duplicate documents
     ///////////////////////////////// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-    public boolean found(String paramName, String Checking, String collectionname) {
+    public String found(String paramName, String Checking, String collectionname) {
         MongoCollection<Document> collection = database.getCollection(collectionname);
         BasicDBObject whereQuery = new BasicDBObject();
         whereQuery.put(paramName, Checking);
@@ -81,9 +81,9 @@ public class DataBaseMaster {
         MongoCursor<Document> iterator = cursor.iterator();
 
         if (iterator.hasNext()) {
-            return true;
+            return iterator.next().get("URL").toString();
         } else
-            return false;
+            return null;
 
     }
 
