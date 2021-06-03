@@ -26,7 +26,7 @@ app.post('/Search', (req, res, next) => {
 
         db.collection('Indexers').find({ Word: index }).toArray().then((docs) => {
 
-            console.log(docs);
+            res.render(path.join(__dirname, 'public', 'ResultsPage.ejs'),{Documents:docs});
 
         }).catch((err) => {
 
