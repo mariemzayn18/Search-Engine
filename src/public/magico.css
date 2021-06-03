@@ -36,11 +36,11 @@
     border: 2px solid #e07543;
     font-size: 15px;
     margin-bottom: 10px;
-    margin-left: -50px;
+    margin-left: -100px;
     margin-top: 30px;
     width: 500px;
     left:50%;
-top:25%;
+    top:25%;
  
     }
     
@@ -93,7 +93,6 @@ top:25%;
         background-color: #e07543;  
         margin-top: 30px;
         border-radius: 50%;
-        border: none;
         color: white;
         padding: 10px 50px;
         text-align: center;

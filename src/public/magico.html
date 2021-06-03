@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="magico.css">
+</head>
+
+<body>
+    <div class="container-out">
+        <img src="logo.png" alt="Magico">
+
+        <div class="container-in">
+            <div class="search-container">
+
+                <form action="http://localhost:3000/Search" method="POST">
+                <div class="search-engine">
+
+                    <input type="input" id="search-input" name="index" autocomplete="off" placeholder="Type word to Search ...." />
+                </div>
+                    <button type="submit" >Search</button>
+                </form>
+                <div id="search-results"></div>
+                <div id="search-data"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+
+        function search() {
+            var index = document.getElementById("search-input").value;
+            console.log(index);
+        }
+
+    </script>
+</body>
+
+</html>
