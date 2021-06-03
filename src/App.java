@@ -350,7 +350,6 @@ class webCrawler implements Runnable {
             System.out.println("vector done");
         } catch (IOException e) {
             System.out.println("throwing exception!!!!!!!!");
-            e.printStackTrace();
         }
         return no_read_vector;
     }
