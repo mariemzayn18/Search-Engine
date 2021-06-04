@@ -126,7 +126,11 @@ public class DataBaseMaster {
                 String url = String.valueOf(data.get("URL"));
                 // chcek if this url contains spam skip this url and don't insert it into DB
                 if (Spam_URLs.contains(url))
+                {
+                    System.out.println("------------------------I AM SPAM URL");
                     continue;
+                }
+                    
 
                 document.append("URL", url);
                 // note didn't sort the list yet :(

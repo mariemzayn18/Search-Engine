@@ -32,7 +32,7 @@ class App {
 
         List<String> seeds = new ArrayList<String>();
 
-        File Seedsfile = new File("E:\\2nd year- 2nd term\\Advanced programming\\ap_proj\\Search-Engine\\src\\Seeds.txt");
+        File Seedsfile = new File("src\\Seeds.txt");
         Scanner SeedsSc = new Scanner(Seedsfile);
 
         while (SeedsSc.hasNextLine()) {
