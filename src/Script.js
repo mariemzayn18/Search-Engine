@@ -4,7 +4,7 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const app = express();
 const mongo = require('mongodb');
-
+var stemmer = require('porter-stemmer').stemmer
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -22,8 +22,7 @@ app.post('/Search', (req, res, next) => {
         if (err) throw err;
 
         const db = client.db("myDatabase");
-
-
+        index = stemmer(index);
         db.collection('Indexers').find({ Word: index }).toArray().then((docs) => {
 
             res.render(path.join(__dirname, 'public', 'ResultsPage.ejs'),{Documents:docs});

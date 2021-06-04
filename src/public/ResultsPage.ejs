@@ -2,7 +2,10 @@
     <ul>
         <% Documents.forEach(function(doc){ %>
             <li>
-                <%- doc.URL %>
+             <a href=<%- doc.URL %>>
+                <%- doc.title %>  
+             </a>   
+             
             </li>
             <%});%>
     </ul>
