@@ -14,7 +14,7 @@ import java.util.*;
 class App {
 
     public static int currentCrawledPages = 0;
-    public static int maxCrawledPages = 3; // change to 5000
+    public static int maxCrawledPages = 20; // change to 5000
 
     // ----------------------------------------------------------
 
@@ -33,7 +33,7 @@ class App {
         List<String> seeds = new ArrayList<String>();
 
         File Seedsfile = new File(
-                "E:\\2nd year- 2nd term\\Advanced programming\\ap_proj\\Search-Engine\\src\\Seeds.txt");
+                "src/Seeds.txt");
         Scanner SeedsSc = new Scanner(Seedsfile);
 
         while (SeedsSc.hasNextLine()) {
@@ -51,7 +51,7 @@ class App {
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         Runnable obj1 = new webCrawler(numberOfThreads, currentCrawledPages, maxCrawledPages, seeds);
         // crawling(numberOfThreads, obj1);
-        Indexer myind = new Indexer(numberOfThreads);
+        //Indexer myind = new Indexer(numberOfThreads);
 
     }
 
@@ -261,7 +261,8 @@ class webCrawler implements Runnable {
                         System.out.println("I'm here to be recrawled");
                         currentCrawledPages = 0;
                         FirstCrawling = false;
-                        Indexer myind = new Indexer(Num);
+                        return true;
+                        //Indexer myind = new Indexer(Num);
                         // App.crawling(Num, this);
                     }
                     return false;
