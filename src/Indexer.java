@@ -3,8 +3,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
-
-
 //import DataBaseMaster;
 public class Indexer {
     DataBaseMaster dbMaster = new DataBaseMaster();
@@ -14,7 +12,7 @@ public class Indexer {
     Hashtable<String, List<org.bson.Document>> Indexer = new Hashtable<String, List<org.bson.Document>>();
     int numberOfThreads;
 
-    Indexer(int numberOfThreads) throws InterruptedException {
+    Indexer(int numberOfThreads) {
 
         this.numberOfThreads = numberOfThreads;
 
@@ -42,7 +40,6 @@ public class Indexer {
             // looping over the documents and urls and send them to function
             DOCs_Num = Docs.size();
 
-
             Runnable obj1 = new WebIndexer(DOCs_Num, Docs, numberOfThreads, Spam_URLs, Indexer);
             index_threads(numberOfThreads, obj1);
 
@@ -62,16 +59,16 @@ public class Indexer {
                     Indexer.get(key).get(i).append("priority", IDF);
                 }
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         dbMaster.insertDocs(Indexer, Spam_URLs);
-        System.out.println("crawling agaiinn");
+        
     }
 
     public static void index_threads(int numberOfThreads, Runnable obj1) throws InterruptedException {
-        Vector<Thread> threads= new Vector<Thread>();
+        Vector<Thread> threads = new Vector<Thread>();
 
         for (int i = 0; i < numberOfThreads; i++) {
             Thread myindexer = new Thread(obj1);
@@ -81,7 +78,7 @@ public class Indexer {
             myindexer.start();
         }
 
-        for(int i=0;i<numberOfThreads;i++) {
+        for (int i = 0; i < numberOfThreads; i++) {
             threads.get(i).join();
         }
     }
@@ -97,8 +94,8 @@ class WebIndexer implements Runnable {
     Vector<String> Spam_URLs;
     Hashtable<String, List<org.bson.Document>> Indexer;
 
-    WebIndexer(int DocumentNumber, List<org.bson.Document> Docs, int numberOfThreads,
-            Vector<String> Spam_URLs, Hashtable<String, List<org.bson.Document>> Indexer) {
+    WebIndexer(int DocumentNumber, List<org.bson.Document> Docs, int numberOfThreads, Vector<String> Spam_URLs,
+            Hashtable<String, List<org.bson.Document>> Indexer) {
         this.DocumentNumber = DocumentNumber;
         this.Docs = Docs;
         Document_size = Docs.size();
@@ -112,20 +109,26 @@ class WebIndexer implements Runnable {
 
         while (Document_size > 0) {
             for (int i = 0; i < numberOfThreads; i++) {
-                    if (Doc_count < Docs.size()) {
-                        String url = Docs.get(Doc_count).get("URL").toString();
-                      //  System.out.println("Indexer and my URL is: "+url);
-                        String doc = Docs.get(Doc_count).get("Document").toString();
-                        String title = Docs.get(Doc_count).get("title").toString();
-                        Doc_count++;
-                        indexing_process(doc, url, title);
+                if (Doc_count < Docs.size()) {
+                    String url = Docs.get(Doc_count).get("URL").toString();
+                    System.out.println("Indexer and my URL is: " + url);
+                    String doc = Docs.get(Doc_count).get("Document").toString();
+                 String title;
+                    try {
+                    title = Docs.get(Doc_count).get("title").toString();
+                      
+                  } catch (Exception e) {
+                     title = url;
+                  }
+                    Doc_count++;
+                    indexing_process(doc, url, title);
                 }
 
             }
 
             Document_size -= numberOfThreads;
         }
-        System.out.println("i finshed all docs and I'm thread #"+Thread.currentThread().getName());
+        System.out.println("i finshed all docs and I'm thread #" + Thread.currentThread().getName());
 
     }
 
@@ -140,22 +143,21 @@ class WebIndexer implements Runnable {
 
         // Remove Tags
         String str = Doc;
-        str = str.replaceAll("(<style.+?</style>)", "");
-        str = str.replaceAll("(?s)<script.*?(/>|</script>)", "");
-        str = str.replaceAll("(?s)<head.*?(/>|</head>)", "");
-        str = str.replaceAll("(?s)<a.*?(/>|</a>)", "");
+        str = str.replaceAll("<style([\\s\\S]+?)</style>", "");
+        str = str.replaceAll("<script([\\s\\S]+?)</script>", "");
+        str = str.replaceAll("\n", "");
+        str = str.replaceAll("\\<[\s]*tag[^>]*>","");
+        str = str.replaceAll("\\<.*?>", "");
         str = str.replaceAll("[0-9]", "");
-        str = str.replaceAll("\\<.*?\\>", "");
-        str = str.replaceAll("\\W+", " ");
+        str = str.replaceAll("\\p{P}", "");
         str = str.toLowerCase();
         // Array of unwanted Text(finished)
-        FileReader fr;
         try {
             File StopWords = new File("src/StopWords.txt");
             Scanner Words = new Scanner(StopWords);
 
             while (Words.hasNextLine()) {
-                str = str.replaceAll(" " + Words.nextLine() + " ", " ");
+                str = str.replaceAll(Words.nextLine()+"\\s+", " ");
             }
 
             Words.close();
@@ -165,7 +167,7 @@ class WebIndexer implements Runnable {
 
         // split the document to arr of string
         String[] words = str.split("\\s+");
-        
+
         // calling stemmer function and updating the words
         Stemmer Stem = new Stemmer();
         for (int i = 0; i < words.length; i++) {
@@ -198,11 +200,11 @@ class WebIndexer implements Runnable {
         // doc
         Double TF;
         for (String myword : Unique_words) {
-//            System.out.println(myword);
-//            System.out.println(word_TF_Map.get(myword));
-//            System.out.println(Doc.length());
-//            System.out.println(word_TF_Map.size());
-//            System.out.println(Unique_words.size());
+            // System.out.println(myword);
+            // System.out.println(word_TF_Map.get(myword));
+            // System.out.println(Doc.length());
+            // System.out.println(word_TF_Map.size());
+            // System.out.println(Unique_words.size());
             word_TF_Map.put(myword, word_TF_Map.get(myword) / Doc.length());
             TF = word_TF_Map.get(myword);
             if (TF > 0.5) {
@@ -219,27 +221,24 @@ class WebIndexer implements Runnable {
                     .append("title", title).append("priority", TF);
             // check if this doc exists alrady in th DB
             List<org.bson.Document> doc = Indexer.get(myword);
-           // IF this word is not stored before 
-           if (doc == null) 
-           {
-               System.out.println("----------------------NULL DOC----------");
+            // IF this word is not stored before
+            if (doc == null) {
+                //System.out.println("----------------------NULL DOC----------");
                 // if not create a new list for this word to store its URLs and priorities
-               doc = new ArrayList<>();
-               // add the first doc in its list
-               doc.add(Word_Value);
-               Indexer.put(myword, doc);
-           } 
-           else
-           {
-               doc.add(Word_Value);
-               Indexer.put(myword, doc);
+                doc = new ArrayList<>();
+                // add the first doc in its list
+                doc.add(Word_Value);
+                Indexer.put(myword, doc);
+            } else {
+                doc.add(Word_Value);
+                Indexer.put(myword, doc);
 
-           }
-            //System.out.println("finished indexing and I'm thread #"+Thread.currentThread().getName());
+            }
+            // System.out.println("finished indexing and I'm thread
+            // #"+Thread.currentThread().getName());
 
         }
 
     }
-   
 
 }

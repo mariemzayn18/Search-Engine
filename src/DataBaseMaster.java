@@ -115,8 +115,7 @@ public class DataBaseMaster {
     }
 
     // insert the final hasht able into data base
-    public void insertDocs(Hashtable<String, List<Document>> Table, Vector<String> Spam_URLs) {
-        System.out.println("Finally i'm in the database");
+    public void insertDocs(Hashtable<String, List<Document>> Table,Vector<String> Spam_URLs) {
         MongoCollection<Document> collection = database.getCollection("Indexers");
         List<Document> docs = new ArrayList<Document>();
         for (String key : Table.keySet()) {
@@ -125,22 +124,18 @@ public class DataBaseMaster {
 
                 Document data = Table.get(key).get(i);
                 String url = String.valueOf(data.get("URL"));
+                String title = String.valueOf(data.get("title"));
                 // chcek if this url contains spam skip this url and don't insert it into DB
-                if (Spam_URLs.contains(url))
-                {
-                    System.out.println("------------------------I AM SPAM URL");
-                    continue;
-                }
-                    
-
                 document.append("URL", url);
+                document.append("title", title);
+                
                 // note didn't sort the list yet :(
                 document.append("priority", data.get("priority"));
             }
             docs.add(document);
         }
         collection.insertMany(docs);
-        System.out.println("done");
+        System.out.println("hii after insert many");
 
     }
 

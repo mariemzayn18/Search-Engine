@@ -13,7 +13,7 @@ import java.util.*;
 class App {
 
     public static int currentCrawledPages = 0;
-    public static int maxCrawledPages = 1; // change to 5000
+    public static int maxCrawledPages = 10; // change to 5000
     public static List<String> seeds;
 
     // ----------------------------------------------------------
@@ -33,7 +33,7 @@ class App {
        List<String> seeds = new ArrayList<String>();
 
 
-        File Seedsfile = new File("E:\\2nd year- 2nd term\\Advanced programming\\ap_proj\\Search-Engine\\src\\Seeds.txt");
+        File Seedsfile = new File("src/Seeds.txt");
         Scanner SeedsSc = new Scanner(Seedsfile);
 
         while (SeedsSc.hasNextLine()) {
@@ -159,9 +159,15 @@ class webCrawler implements Runnable {
                     if (URL.contains(no_read_vector.get(i)))
                         return;
                 }
-                String title = document.select("title").first().text();
-                AddToLinks(URL,title,document);
-
+                
+                try {
+                    String title = document.select("title").first().text();
+                    AddToLinks(URL,title,document);
+        
+                } catch (Exception e) {
+                    AddToLinks(URL,URL,document);
+                }
+                
             }
 
 
