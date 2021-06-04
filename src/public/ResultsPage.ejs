@@ -1,5 +1,24 @@
+<!DOCTYPE html >
+<html>
+<head>
+<link rel="stylesheet" href="ResultsPage.css">
+</head>
 <body>
-    <ul>
+    <div class="container">
+        <div class="item">
+
+            <img src="logo.png" alt="Magico">
+            <input
+            type="input"
+            id="search-input"
+            autocomplete="off"
+            placeholder="Type word to Search ...."
+        />
+        <button type="button">Search</button>
+
+        </div>
+        
+     <ul>
         <% Documents.forEach(function(doc){ %>
             <li>
              <a href=<%- doc.URL %>>
@@ -8,5 +27,9 @@
              
             </li>
             <%});%>
-    </ul>
+      </ul>
+            
+    </div>
+
 </body>
+</html>
