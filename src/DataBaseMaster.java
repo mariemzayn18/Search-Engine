@@ -17,7 +17,7 @@ public class DataBaseMaster {
 
     MongoClient mongo;
     MongoDatabase database;
-   // Indexer MyIndxer = new Indexer();
+    // Indexer MyIndxer = new Indexer();
 
     DataBaseMaster() {
 
@@ -41,14 +41,17 @@ public class DataBaseMaster {
     }
 
     public List<Document> retriveDocuments() {
+        
         MongoCollection<Document> collection = database.getCollection("WebCrawler");
         FindIterable<Document> iterDoc = collection.find();
         MongoCursor<Document> it = iterDoc.iterator();
         List<Document> list = new ArrayList<>();
 
+
         while (it.hasNext()) {
             list.add((Document) (it.next()));
         }
+        it.close();
         return list;
 
     }
@@ -64,6 +67,7 @@ public class DataBaseMaster {
         }
         BasicDBObject document = new BasicDBObject();
 
+        it.close();
         // Delete All documents from collection Using blank BasicDBObject
         collection.deleteMany(document);
         return list;
@@ -81,9 +85,13 @@ public class DataBaseMaster {
         MongoCursor<Document> iterator = cursor.iterator();
 
         if (iterator.hasNext()) {
-            return iterator.next().get("URL").toString();
-        } else
+            String URL = iterator.next().get("URL").toString();
+            iterator.close();
+            return URL;
+        } else {
+            iterator.close();
             return null;
+        }
 
     }
 
@@ -97,9 +105,9 @@ public class DataBaseMaster {
 
     }
 
-    public void insertDocument(String documenString, String URL) {
+    public void insertDocument(String documenString,String title, String URL) {
         MongoCollection<Document> collection = database.getCollection("WebCrawler");
-        Document document = new Document("URL", URL).append("Document", documenString);
+        Document document = new Document("URL", URL).append("Document", documenString).append("title",title);
         // Inserting document into the collection
         collection.insertOne(document);
         System.out.println("Document inserted successfully");
@@ -107,17 +115,17 @@ public class DataBaseMaster {
     }
 
     // insert the final hasht able into data base
-    public void insertDocs(Hashtable<String, List<Document>> Table,Vector<String> Unique_words, Vector<String> Spam_URLs) {
+    public void insertDocs(Hashtable<String, List<Document>> Table, Vector<String> Unique_words,
+            Vector<String> Spam_URLs) {
         MongoCollection<Document> collection = database.getCollection("Indexers");
         List<Document> docs = new ArrayList<Document>();
         for (String key : Table.keySet()) {
             Document document = new Document("Word", key);
-            for (int i = 0; i < Table.get(key).size(); i++) 
-            {
+            for (int i = 0; i < Table.get(key).size(); i++) {
 
                 Document data = Table.get(key).get(i);
                 String url = String.valueOf(data.get("URL"));
-        //chcek if this url contains spam skip this url and don't insert it into DB
+                // chcek if this url contains spam skip this url and don't insert it into DB
                 if (Spam_URLs.contains(url))
                     continue;
 
@@ -150,21 +158,24 @@ public class DataBaseMaster {
             if (docs.size() == 0) {
                 return null;
             }
+            iterator.close();
             return docs;
         } catch (Exception e) {
+            iterator.close();
             return null;
         }
 
     }
 
-    public void DeleteAllDocs(String collectionname){
+    public void DeleteAllDocs(String collectionname) {
         MongoCollection<Document> collection = database.getCollection(collectionname);
         BasicDBObject document = new BasicDBObject();
 
         // Delete All documents from collection Using blank BasicDBObject
         collection.deleteMany(document);
-        return ;
+        return;
     }
+
     public void UpdateDocument(String URL, String Document) {
 
         MongoCollection<Document> collection = database.getCollection("WebCrawler");
@@ -175,4 +186,7 @@ public class DataBaseMaster {
 
     }
 
+    public void close() {
+        mongo.close();
+    }
 }

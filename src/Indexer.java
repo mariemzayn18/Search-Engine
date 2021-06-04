@@ -1,9 +1,10 @@
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
 //import DataBaseMaster;
-public class Indexer{
+public class Indexer {
     DataBaseMaster dbMaster = new DataBaseMaster();
     Vector<String> Unique_words = new Vector<String>();
     int DOCs_Num; // NO.OF DOCS IN DATABASE
@@ -11,9 +12,10 @@ public class Indexer{
     // List<org.bson.Document> list = new ArrayList<org.bson.Document>();
     Hashtable<String, List<org.bson.Document>> Indexer = new Hashtable<String, List<org.bson.Document>>();
     int numberOfThreads;
+
     Indexer(int numberOfThreads) {
 
-        this.numberOfThreads=numberOfThreads;
+        this.numberOfThreads = numberOfThreads;
 
         try {
             // reterive data from database
@@ -21,13 +23,13 @@ public class Indexer{
 
             List<org.bson.Document> DB_Indexers = dbMaster.retriveIndexes();
             // looping over the Words and urls and Save Them
-            for (int i = 0; i < DB_Indexers.size(); i++)
-            {
+            for (int i = 0; i < DB_Indexers.size(); i++) {
                 String url = DB_Indexers.get(i).get("URL").toString();
+                String title = DB_Indexers.get(i).get("title").toString();
                 String iString = DB_Indexers.get(i).get("Word").toString();
                 int TF = Integer.valueOf(DB_Indexers.get(i).get("priority").toString());
                 org.bson.Document Word_Value = new org.bson.Document("Word", iString).append("URL", url)
-                        .append("priority", TF);
+                        .append("title", title).append("priority", TF);
                 List<org.bson.Document> doc = Indexer.get(iString);
                 if (doc == null) {
                     doc = new ArrayList<>();
@@ -39,11 +41,10 @@ public class Indexer{
             // looping over the documents and urls and send them to function
             DOCs_Num = Docs.size();
 
-            Runnable obj1 = new WebIndexer(DOCs_Num,Docs,numberOfThreads,Unique_words,Spam_URLs,Indexer);
+            Runnable obj1 = new WebIndexer(DOCs_Num, Docs, numberOfThreads, Unique_words, Spam_URLs, Indexer);
             index_threads(numberOfThreads, obj1);
 
-
-            for (int i = 0; i < numberOfThreads; i++){
+            for (int i = 0; i < numberOfThreads; i++) {
                 Thread.currentThread().join();
             }
 
@@ -64,7 +65,7 @@ public class Indexer{
         } catch (Exception e) {
             System.out.println(e);
         }
-        dbMaster.insertDocs(Indexer, Unique_words,Spam_URLs);
+        dbMaster.insertDocs(Indexer, Unique_words, Spam_URLs);
 
     }
 
@@ -72,59 +73,57 @@ public class Indexer{
         for (int i = 0; i < numberOfThreads; i++) {
             Thread myindexer = new Thread(obj1);
             myindexer.setName(Integer.toString(i));
-            System.out.println("Hello there from indexer and thread #"+i);
+            System.out.println("Hello there from indexer and thread #" + i);
             myindexer.start();
         }
     }
 }
 
-class WebIndexer implements Runnable{
-   int DocumentNumber;
-   List<org.bson.Document> Docs;
-   int Document_size;
-   int numberOfThreads;
-   int Doc_count;
-   DataBaseMaster dbMaster = new DataBaseMaster();
-   Vector<String> Unique_words;
-   Vector<String> Spam_URLs;
-   Hashtable<String, List<org.bson.Document>> Indexer;
+class WebIndexer implements Runnable {
+    int DocumentNumber;
+    List<org.bson.Document> Docs;
+    int Document_size;
+    int numberOfThreads;
+    int Doc_count;
+    DataBaseMaster dbMaster = new DataBaseMaster();
+    Vector<String> Unique_words;
+    Vector<String> Spam_URLs;
+    Hashtable<String, List<org.bson.Document>> Indexer;
 
-
-    WebIndexer(int DocumentNumber, List<org.bson.Document> Docs,int numberOfThreads,Vector<String> Unique_words,Vector<String> Spam_URLs,Hashtable<String, List<org.bson.Document>> Indexer ) {
-        this.DocumentNumber=DocumentNumber;
-        this.Docs=Docs;
-        Document_size=Docs.size();
-        this.numberOfThreads=numberOfThreads;
-        Doc_count=0;
-        this.Unique_words=Unique_words;
-        this.Spam_URLs=Spam_URLs;
-        this.Indexer= Indexer;
+    WebIndexer(int DocumentNumber, List<org.bson.Document> Docs, int numberOfThreads, Vector<String> Unique_words,
+            Vector<String> Spam_URLs, Hashtable<String, List<org.bson.Document>> Indexer) {
+        this.DocumentNumber = DocumentNumber;
+        this.Docs = Docs;
+        Document_size = Docs.size();
+        this.numberOfThreads = numberOfThreads;
+        Doc_count = 0;
+        this.Unique_words = Unique_words;
+        this.Spam_URLs = Spam_URLs;
+        this.Indexer = Indexer;
     }
 
+    public void run() {
 
-    public void run(){
+        while (Document_size > 0) {
+            for (int i = 0; i < numberOfThreads; i++) {
+                if (Integer.parseInt(Thread.currentThread().getName()) == i) {
+                    if (Doc_count < Docs.size()) {
+                        String url = Docs.get(Doc_count).get("URL").toString();
+                        System.out.println(url);
+                        String doc = Docs.get(Doc_count).get("Document").toString();
+                        String title = Docs.get(Doc_count).get("title").toString();
+                        Doc_count++;
+                        indexing_process(doc, url, title);
+                    }
+                }
 
-         while(Document_size>0){
-             for (int i = 0; i < numberOfThreads; i++) {
-                 if (Integer.parseInt(Thread.currentThread().getName()) == i) {
-                     if(Doc_count<Docs.size()){
-                         String url = Docs.get(Doc_count).get("URL").toString();
-                         System.out.println(url);
-                         String doc = Docs.get(Doc_count).get("Document").toString();
-                         Doc_count++;
-                         indexing_process(doc, url);
-                     }
-                 }
-
-             }
-             Document_size-=numberOfThreads;
-         }
-
-
+            }
+            Document_size -= numberOfThreads;
+        }
 
     }
 
-    public void indexing_process(String Doc, String URL){
+    public void indexing_process(String Doc, String URL, String title) {
         // -----------------------------Indexer--------------------------------
 
         // TODO 1-Remove HTML Tags(Done)
@@ -146,12 +145,14 @@ class WebIndexer implements Runnable{
         // Array of unwanted Text(finished)
         FileReader fr;
         try {
-            fr = new FileReader("E:\\2nd year- 2nd term\\Advanced programming\\ap_proj\\Search-Engine\\src\\StopWords.txt");
-            int i;
-            while ((i = fr.read()) != -1)
-                str = str.replaceAll(" " + i + " ", " ");
-            fr.close();
+            File StopWords = new File("src/StopWords.txt");
+            Scanner Words = new Scanner(StopWords);
 
+            while (Words.hasNextLine()) {
+                str = str.replaceAll(" " + Words.nextLine() + " ", " ");
+            }
+
+            Words.close();
         } catch (IOException e) {
             System.out.println(e);
         }
@@ -171,7 +172,7 @@ class WebIndexer implements Runnable{
             String TheWord = Stem.toString();
             // update the array
             words[i] = TheWord;
-            //System.out.print("hello i am in the indxer i am word " + words[i]);
+            // System.out.print("hello i am in the indxer i am word " + words[i]);
         }
         // ---------------- start calculating priority -------------------------
 
@@ -193,6 +194,10 @@ class WebIndexer implements Runnable{
         // doc
         Double TF;
         for (String myword : Unique_words) {
+            System.out.println(myword);
+            System.out.println(word_TF_Map.get(myword));
+            System.out.println(Doc.length());
+
             word_TF_Map.put(myword, word_TF_Map.get(myword) / Doc.length());
             TF = word_TF_Map.get(myword);
             if (TF > 0.5) {
@@ -205,8 +210,8 @@ class WebIndexer implements Runnable{
             }
             // if not a spam store the word in the hash table with its value ( Key :word ,
             // value: doc contains URL & priority)
-            org.bson.Document Word_Value = new org.bson.Document("Word", myword).append("URL", URL).append("priority",
-                    TF);
+            org.bson.Document Word_Value = new org.bson.Document("Word", myword).append("URL", URL)
+                    .append("title", title).append("priority", TF);
             // check if this doc exists alrady in th DB
             List<org.bson.Document> doc = Indexer.get(myword);
             if (doc == null) {
@@ -225,4 +230,3 @@ class WebIndexer implements Runnable{
     }
 
 }
-

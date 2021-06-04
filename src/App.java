@@ -32,7 +32,7 @@ class App {
 
         List<String> seeds = new ArrayList<String>();
 
-        File Seedsfile = new File("E:\\2nd year- 2nd term\\Advanced programming\\ap_proj\\Search-Engine\\src\\Seeds.txt");
+        File Seedsfile = new File("src/Seeds.txt");
         Scanner SeedsSc = new Scanner(Seedsfile);
 
         while (SeedsSc.hasNextLine()) {
@@ -159,8 +159,8 @@ class webCrawler implements Runnable {
                     if (URL.contains(no_read_vector.get(i)))
                         return;
                 }
-
-                AddToLinks(URL,document);
+                String title = document.select("title").first().text();
+                AddToLinks(URL,title,document);
 
             }
 
@@ -228,7 +228,7 @@ class webCrawler implements Runnable {
         }
     }
 
-    public void AddToLinks(String URL, Document document) {
+    public void AddToLinks(String URL,String title, Document document) {
         synchronized (this) {
             System.out.println("I have the lock and I'm thread"+Thread.currentThread().getName());
             if (links.size() < maxCrawledPages) {
@@ -258,7 +258,7 @@ class webCrawler implements Runnable {
 
                 if (links.add(URL)) {
 
-                    dbMaster.insertDocument(document.toString(),URL);
+                    dbMaster.insertDocument(document.toString(),title,URL);
                     currentCrawledPages++; /////////////// remove this counter//////////////////////////
                     System.out.println(URL + " my count= " + links.size());
 
