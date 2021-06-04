@@ -14,7 +14,7 @@ public class Indexer {
     Hashtable<String, List<org.bson.Document>> Indexer = new Hashtable<String, List<org.bson.Document>>();
     int numberOfThreads;
 
-    Indexer(int numberOfThreads) {
+    Indexer(int numberOfThreads) throws InterruptedException {
 
         this.numberOfThreads = numberOfThreads;
 
@@ -46,8 +46,6 @@ public class Indexer {
             Runnable obj1 = new WebIndexer(DOCs_Num, Docs, numberOfThreads, Spam_URLs, Indexer);
             index_threads(numberOfThreads, obj1);
 
-
-
             System.out.println("Finally i have finished working with threads");
 
             // after the previuos loop we now completed our hash table with only TF
@@ -64,12 +62,12 @@ public class Indexer {
                     Indexer.get(key).get(i).append("priority", IDF);
                 }
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-        dbMaster.insertDocs(Indexer, Spam_URLs);
 
+        dbMaster.insertDocs(Indexer, Spam_URLs);
+        System.out.println("crawling agaiinn");
     }
 
     public static void index_threads(int numberOfThreads, Runnable obj1) throws InterruptedException {
@@ -116,7 +114,7 @@ class WebIndexer implements Runnable {
             for (int i = 0; i < numberOfThreads; i++) {
                     if (Doc_count < Docs.size()) {
                         String url = Docs.get(Doc_count).get("URL").toString();
-                        System.out.println("Indexer and my URL is: "+url);
+                      //  System.out.println("Indexer and my URL is: "+url);
                         String doc = Docs.get(Doc_count).get("Document").toString();
                         String title = Docs.get(Doc_count).get("title").toString();
                         Doc_count++;

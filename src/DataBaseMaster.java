@@ -140,6 +140,7 @@ public class DataBaseMaster {
             docs.add(document);
         }
         collection.insertMany(docs);
+        System.out.println("done");
 
     }
 
