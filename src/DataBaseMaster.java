@@ -36,7 +36,7 @@ public class DataBaseMaster {
         } catch (Exception e) {
             System.out.println(e.toString());
         }
-        System.out.println("Collections created successfully");
+      //  System.out.println("Collections created successfully");
 
     }
 
@@ -110,7 +110,7 @@ public class DataBaseMaster {
         Document document = new Document("URL", URL).append("Document", documenString).append("title",title);
         // Inserting document into the collection
         collection.insertOne(document);
-        System.out.println("Document inserted successfully");
+      //  System.out.println("Document inserted successfully");
 
     }
 
@@ -135,7 +135,7 @@ public class DataBaseMaster {
             docs.add(document);
         }
         collection.insertMany(docs);
-        System.out.println("hii after insert many");
+    //    System.out.println("hii after insert many");
 
     }
 
@@ -181,7 +181,7 @@ public class DataBaseMaster {
         MongoCollection<Document> collection = database.getCollection("WebCrawler");
         Document Updated = new Document("URL", URL).append("Document", Document);
         collection.findOneAndReplace(new Document("URL", URL), Updated);
-        System.out.println("indexer Updated successfully");
+      //  System.out.println("indexer Updated successfully");
         return;
 
     }

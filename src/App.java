@@ -13,7 +13,7 @@ import java.util.*;
 class App {
 
     public static int currentCrawledPages = 0;
-    public static int maxCrawledPages = 10; // change to 5000
+    public static int maxCrawledPages = 120; // change to 5000
     public static List<String> seeds;
 
     // ----------------------------------------------------------
@@ -28,12 +28,12 @@ class App {
         Scanner sc = new Scanner(System.in); // System.in is a standard input stream
         System.out.print("Enter the number of threads to take part in the crawling process--> ");
         int numberOfThreads = sc.nextInt();
-        // dbMaster.DeleteAllDocs("WebCrawler");
+       //  dbMaster.DeleteAllDocs("WebCrawler");
 
        List<String> seeds = new ArrayList<String>();
 
 
-        File Seedsfile = new File("src\Seeds.txt");
+        File Seedsfile = new File("E:\\2nd year- 2nd term\\Advanced programming\\ap_proj\\Search-Engine\\src\\Seeds.txt");
         Scanner SeedsSc = new Scanner(Seedsfile);
 
         while (SeedsSc.hasNextLine()) {
@@ -42,28 +42,27 @@ class App {
 
         SeedsSc.close();
         new App(seeds);
+        HashSet<String> links=new HashSet<String>();
 
         while (true) {
-            start_crawl_process(numberOfThreads);
+            start_crawl_process(numberOfThreads,links);
             Indexer myind = new Indexer(numberOfThreads);
-            System.out.println("I'm here tanyyyyy");
+           // System.out.println("I'm here tanyyyyy");
         }
     }
 
-  static void start_crawl_process(int numberOfThreads) throws InterruptedException {
-      System.out.println("WELCOMMME");
+  static void start_crawl_process(int numberOfThreads, HashSet<String> links) throws InterruptedException {
+     // System.out.println("WELCOMMME");
 
       Vector<Thread> threads= new Vector<Thread>();
       Vector<Boolean> stopThreads= new Vector<Boolean>();
       for (int i=0;i<numberOfThreads;i++)
           stopThreads.add(false);
 
-      HashSet<String> links=new HashSet<String>();
-
 
       Runnable obj1 = new webCrawler(numberOfThreads, currentCrawledPages, maxCrawledPages, seeds,threads,stopThreads,links);
       crawling(numberOfThreads, obj1,threads,stopThreads);
-      System.out.println("FROM CRAWLER --> Finally i have finished working with threads");
+      //System.out.println("FROM CRAWLER --> Finally i have finished working with threads");
 
 
   }
@@ -76,7 +75,7 @@ class App {
                     Thread mycrawler = new Thread(obj1);
                     mycrawler.setName(Integer.toString(i));
                     threads.add(mycrawler);
-                    System.out.println("Hello there I'm in crawler and I'm thread #"+i);
+                  //  System.out.println("Hello there I'm in crawler and I'm thread #"+i);
                     mycrawler.start();
             }
         }
@@ -232,7 +231,7 @@ class webCrawler implements Runnable {
 
     public void AddToLinks(String URL,String title, Document document) throws InterruptedException {
         synchronized (this) {
-            System.out.println("I have the lock and I'm thread"+Thread.currentThread().getName());
+         //   System.out.println("I have the lock and I'm thread"+Thread.currentThread().getName());
             if (links.size() < maxCrawledPages) {
 
                 String url_dup=dbMaster.found("Document",document.toString(),"WebCrawler");
@@ -242,12 +241,12 @@ class webCrawler implements Runnable {
                     {
                         links.add(url_dup);
                         currentCrawledPages++; /////////////// remove this counter//////////////////////////
-                        System.out.println(URL + " my count= " + links.size());
+                       System.out.println(URL + " my count= " + links.size());
                     }
                     else
                         ignored_URLS.add(URL);
 
-                    System.out.println("Database already contains this document");
+                  //  System.out.println("Database already contains this document");
                     if(links.size() >= maxCrawledPages) { ////////////////////////////// hash set exceeds the 5000 links////////////////////////////// /////////////////////////////
                         currentCrawledPages = 0;
                         FirstCrawling = false;
@@ -265,7 +264,7 @@ class webCrawler implements Runnable {
                     currentCrawledPages++; /////////////// remove this counter//////////////////////////
                     System.out.println(URL + " my count= " + links.size());
 
-                    System.out.println("I left the lock "+Thread.currentThread().getName());
+                 //   System.out.println("I left the lock "+Thread.currentThread().getName());
                 }
 
             } if(links.size() >= maxCrawledPages) { ////////////////////////////// hash set exceeds the 5000 links////////////////////////////// /////////////////////////////
@@ -293,10 +292,10 @@ class webCrawler implements Runnable {
         }
         // System.out.println("HOST");
         //System.out.println(url_temp.getHost());
-        System.out.println("robot url");
+       // System.out.println("robot url");
         // prepare the url of the robot: protocol+ host + file
         String robot_url = "https://" + url_temp.getHost() + "/robots.txt";
-        System.out.println(robot_url);
+        //System.out.println(robot_url);
         // vector to store the disallow extenions in it
         Vector<String> no_read_vector = new Vector<String>(1, 1);
         // read robots.txt file
@@ -309,7 +308,7 @@ class webCrawler implements Runnable {
             boolean user_agent = true;
             while ((line = my_buffer.readLine()) != null) {
                 if (m == 0) {
-                    System.out.println("i am in the loop");
+                 //   System.out.println("i am in the loop");
                     m++;
                 }
                 index++;
@@ -359,7 +358,7 @@ class webCrawler implements Runnable {
             //
             //
             // }
-            System.out.println("vector done");
+        //    System.out.println("vector done");
         } catch (IOException e) {
             System.out.println("throwing exception!!!!!!!!");
         }
