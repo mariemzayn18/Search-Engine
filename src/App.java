@@ -32,8 +32,7 @@ class App {
 
         List<String> seeds = new ArrayList<String>();
 
-        File Seedsfile = new File(
-                "src/Seeds.txt");
+        File Seedsfile = new File("src/Seeds.txt");
         Scanner SeedsSc = new Scanner(Seedsfile);
 
         while (SeedsSc.hasNextLine()) {
@@ -51,7 +50,7 @@ class App {
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         Runnable obj1 = new webCrawler(numberOfThreads, currentCrawledPages, maxCrawledPages, seeds);
         // crawling(numberOfThreads, obj1);
-        //Indexer myind = new Indexer(numberOfThreads);
+        // Indexer myind = new Indexer(numberOfThreads);
 
     }
 
@@ -158,10 +157,17 @@ class webCrawler implements Runnable {
                     if (URL.contains(no_read_vector.get(i)))
                         return false;
                 }
-                String title = document.select("title").first().text();
-                boolean max = AddToLinks(URL, title, document);
-                if (max)
-                    return true;
+                try {
+                    String title = document.select("title").first().text();
+                    boolean max = AddToLinks(URL, title, document);
+                    if (max)
+                        return true;
+
+                } catch (Exception e) {
+                    boolean max = AddToLinks(URL, URL, document);
+                    if (max)
+                        return true;
+                }
 
             }
 
@@ -262,7 +268,7 @@ class webCrawler implements Runnable {
                         currentCrawledPages = 0;
                         FirstCrawling = false;
                         return true;
-                        //Indexer myind = new Indexer(Num);
+                        // Indexer myind = new Indexer(Num);
                         // App.crawling(Num, this);
                     }
                     return false;
