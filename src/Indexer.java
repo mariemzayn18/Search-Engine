@@ -222,16 +222,22 @@ class WebIndexer implements Runnable {
                     .append("title", title).append("priority", TF);
             // check if this doc exists alrady in th DB
             List<org.bson.Document> doc = Indexer.get(myword);
-            if (doc == null) {
+           // IF this word is not stored before 
+           if (doc == null) 
+           {
+               System.out.println("----------------------NULL DOC----------");
                 // if not create a new list for this word to store its URLs and priorities
-                doc = new ArrayList<>();
-            } else if (!doc.contains(Word_Value)) {
-                // add this url and priority to list of the word
-                doc.add(Word_Value);
-                // add to the hash table "indexer"
-                Indexer.put(myword, doc);
+               doc = new ArrayList<>();
+               // add the first doc in its list
+               doc.add(Word_Value);
+               Indexer.put(myword, doc);
+           } 
+           else
+           {
+               doc.add(Word_Value);
+               Indexer.put(myword, doc);
 
-            }
+           }
             //System.out.println("finished indexing and I'm thread #"+Thread.currentThread().getName());
 
         }
