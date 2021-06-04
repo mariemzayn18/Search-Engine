@@ -6,7 +6,6 @@ import java.util.*;
 //import DataBaseMaster;
 public class Indexer {
     DataBaseMaster dbMaster = new DataBaseMaster();
-    Vector<String> Unique_words = new Vector<String>();
     int DOCs_Num; // NO.OF DOCS IN DATABASE
     Vector<String> Spam_URLs = new Vector<String>();
     // List<org.bson.Document> list = new ArrayList<org.bson.Document>();
@@ -41,7 +40,7 @@ public class Indexer {
             // looping over the documents and urls and send them to function
             DOCs_Num = Docs.size();
 
-            Runnable obj1 = new WebIndexer(DOCs_Num, Docs, numberOfThreads, Unique_words, Spam_URLs, Indexer);
+            Runnable obj1 = new WebIndexer(DOCs_Num, Docs, numberOfThreads, Spam_URLs, Indexer);
             index_threads(numberOfThreads, obj1);
 
             for (int i = 0; i < numberOfThreads; i++) {
@@ -65,7 +64,7 @@ public class Indexer {
         } catch (Exception e) {
             System.out.println(e);
         }
-        dbMaster.insertDocs(Indexer, Unique_words, Spam_URLs);
+        dbMaster.insertDocs(Indexer, Spam_URLs);
 
     }
 
@@ -86,18 +85,16 @@ class WebIndexer implements Runnable {
     int numberOfThreads;
     int Doc_count;
     DataBaseMaster dbMaster = new DataBaseMaster();
-    Vector<String> Unique_words;
     Vector<String> Spam_URLs;
     Hashtable<String, List<org.bson.Document>> Indexer;
 
-    WebIndexer(int DocumentNumber, List<org.bson.Document> Docs, int numberOfThreads, Vector<String> Unique_words,
+    WebIndexer(int DocumentNumber, List<org.bson.Document> Docs, int numberOfThreads,
             Vector<String> Spam_URLs, Hashtable<String, List<org.bson.Document>> Indexer) {
         this.DocumentNumber = DocumentNumber;
         this.Docs = Docs;
         Document_size = Docs.size();
         this.numberOfThreads = numberOfThreads;
         Doc_count = 0;
-        this.Unique_words = Unique_words;
         this.Spam_URLs = Spam_URLs;
         this.Indexer = Indexer;
     }
@@ -109,7 +106,7 @@ class WebIndexer implements Runnable {
                 if (Integer.parseInt(Thread.currentThread().getName()) == i) {
                     if (Doc_count < Docs.size()) {
                         String url = Docs.get(Doc_count).get("URL").toString();
-                        System.out.println(url);
+                        System.out.println("Indexer and my URL is: "+url);
                         String doc = Docs.get(Doc_count).get("Document").toString();
                         String title = Docs.get(Doc_count).get("title").toString();
                         Doc_count++;
@@ -179,6 +176,7 @@ class WebIndexer implements Runnable {
         // put each word in words array in a map to count the duplicates in the doc(TF)
         // this is a new map for each document call the function but the hash table
         // global for all the documents
+        Vector<String> Unique_words = new Vector<String>();
         Map<String, Double> word_TF_Map = new HashMap<String, Double>();
         for (String unique_word : words) {
 

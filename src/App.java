@@ -25,14 +25,14 @@ class App {
         Scanner sc = new Scanner(System.in); // System.in is a standard input stream
         System.out.print("Enter the number of threads to take part in the crawling process--> ");
         int numberOfThreads = sc.nextInt();
-      //  dbMaster.DeleteAllDocs("WebCrawler");
+       // dbMaster.DeleteAllDocs("WebCrawler");
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // ------------------------------------------- Mariem.... seeds
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// ---------------------------------------------------
 
         List<String> seeds = new ArrayList<String>();
 
-        File Seedsfile = new File("src/Seeds.txt");
+        File Seedsfile = new File("E:\\2nd year- 2nd term\\Advanced programming\\ap_proj\\Search-Engine\\src\\Seeds.txt");
         Scanner SeedsSc = new Scanner(Seedsfile);
 
         while (SeedsSc.hasNextLine()) {

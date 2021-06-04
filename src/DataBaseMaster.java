@@ -115,8 +115,7 @@ public class DataBaseMaster {
     }
 
     // insert the final hasht able into data base
-    public void insertDocs(Hashtable<String, List<Document>> Table, Vector<String> Unique_words,
-            Vector<String> Spam_URLs) {
+    public void insertDocs(Hashtable<String, List<Document>> Table, Vector<String> Spam_URLs) {
         MongoCollection<Document> collection = database.getCollection("Indexers");
         List<Document> docs = new ArrayList<Document>();
         for (String key : Table.keySet()) {
