@@ -59,11 +59,11 @@ public class Indexer {
                     Indexer.get(key).get(i).append("priority", IDF);
                 }
             }
-
+            dbMaster.insertDocs(Indexer, Spam_URLs);
+    
         } catch (Exception e) {
             e.printStackTrace();
         }
-        dbMaster.insertDocs(Indexer, Spam_URLs);
         
     }
 
