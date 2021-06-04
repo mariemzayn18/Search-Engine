@@ -3,6 +3,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
+
+
 //import DataBaseMaster;
 public class Indexer {
     DataBaseMaster dbMaster = new DataBaseMaster();
@@ -26,7 +28,7 @@ public class Indexer {
                 String url = DB_Indexers.get(i).get("URL").toString();
                 String title = DB_Indexers.get(i).get("title").toString();
                 String iString = DB_Indexers.get(i).get("Word").toString();
-                int TF = Integer.valueOf(DB_Indexers.get(i).get("priority").toString());
+                double TF = Double.valueOf(DB_Indexers.get(i).get("priority").toString());
                 org.bson.Document Word_Value = new org.bson.Document("Word", iString).append("URL", url)
                         .append("title", title).append("priority", TF);
                 List<org.bson.Document> doc = Indexer.get(iString);
@@ -53,18 +55,18 @@ public class Indexer {
             // the word
             System.out.println("------------------------final priority");
             Set<String> keys = Indexer.keySet();
-            Integer IDF;
+            Double IDF;
             for (String key : keys) {
-                IDF = DOCs_Num / Indexer.get(key).size();
+                IDF = (double) (DOCs_Num / Indexer.get(key).size());
                 for (int i = 0; i < Indexer.get(key).size(); i++) {
 
-                    IDF = (Integer) Indexer.get(key).get(i).get("priority") * IDF;
+                    IDF = (Double) Indexer.get(key).get(i).get("priority") * IDF;
                     Indexer.get(key).get(i).append("priority", IDF);
                 }
             }
 
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
         dbMaster.insertDocs(Indexer, Spam_URLs);
 
@@ -151,7 +153,7 @@ class WebIndexer implements Runnable {
         // Array of unwanted Text(finished)
         FileReader fr;
         try {
-            File StopWords = new File("E:\\2nd year- 2nd term\\Advanced programming\\ap_proj\\Search-Engine\\src\\StopWords.txt");
+            File StopWords = new File("src/StopWords.txt");
             Scanner Words = new Scanner(StopWords);
 
             while (Words.hasNextLine()) {
@@ -165,10 +167,7 @@ class WebIndexer implements Runnable {
 
         // split the document to arr of string
         String[] words = str.split("\\s+");
-        for (int i = 0; i < words.length; i++) {
-            words[i] = words[i].replaceAll("[^\\w]", "");
-        }
-
+        
         // calling stemmer function and updating the words
         Stemmer Stem = new Stemmer();
         for (int i = 0; i < words.length; i++) {
@@ -243,5 +242,6 @@ class WebIndexer implements Runnable {
         }
 
     }
+   
 
 }
