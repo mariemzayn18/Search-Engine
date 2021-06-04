@@ -40,13 +40,13 @@ public class Indexer {
             // looping over the documents and urls and send them to function
             DOCs_Num = Docs.size();
 
+
             Runnable obj1 = new WebIndexer(DOCs_Num, Docs, numberOfThreads, Spam_URLs, Indexer);
             index_threads(numberOfThreads, obj1);
 
-            for (int i = 0; i < numberOfThreads; i++) {
-                Thread.currentThread().join();
-                System.out.println("join INDEXER threads ");
-            }
+
+
+            System.out.println("Finally i have finished working with threads");
 
             // after the previuos loop we now completed our hash table with only TF
             // now update priority =TF*IDF -->> IDF= no.of docs in DB/ no.of docs contain
@@ -70,12 +70,19 @@ public class Indexer {
 
     }
 
-    public static void index_threads(int numberOfThreads, Runnable obj1) {
+    public static void index_threads(int numberOfThreads, Runnable obj1) throws InterruptedException {
+        Vector<Thread> threads= new Vector<Thread>();
+
         for (int i = 0; i < numberOfThreads; i++) {
             Thread myindexer = new Thread(obj1);
             myindexer.setName(Integer.toString(i));
+            threads.add(myindexer);
             System.out.println("Hello there from indexer and thread #" + i);
             myindexer.start();
+        }
+
+        for(int i=0;i<numberOfThreads;i++) {
+            threads.get(i).join();
         }
     }
 }
@@ -105,7 +112,6 @@ class WebIndexer implements Runnable {
 
         while (Document_size > 0) {
             for (int i = 0; i < numberOfThreads; i++) {
-                if (Integer.parseInt(Thread.currentThread().getName()) == i) {
                     if (Doc_count < Docs.size()) {
                         String url = Docs.get(Doc_count).get("URL").toString();
                         System.out.println("Indexer and my URL is: "+url);
@@ -113,14 +119,13 @@ class WebIndexer implements Runnable {
                         String title = Docs.get(Doc_count).get("title").toString();
                         Doc_count++;
                         indexing_process(doc, url, title);
-
-                    }
                 }
 
             }
-            System.out.println("i finshed all docs");
+
             Document_size -= numberOfThreads;
         }
+        System.out.println("i finshed all docs and I'm thread #"+Thread.currentThread().getName());
 
     }
 
@@ -146,7 +151,7 @@ class WebIndexer implements Runnable {
         // Array of unwanted Text(finished)
         FileReader fr;
         try {
-            File StopWords = new File("src/StopWords.txt");
+            File StopWords = new File("E:\\2nd year- 2nd term\\Advanced programming\\ap_proj\\Search-Engine\\src\\StopWords.txt");
             Scanner Words = new Scanner(StopWords);
 
             while (Words.hasNextLine()) {
@@ -196,11 +201,11 @@ class WebIndexer implements Runnable {
         // doc
         Double TF;
         for (String myword : Unique_words) {
-            System.out.println(myword);
-            System.out.println(word_TF_Map.get(myword));
-            System.out.println(Doc.length());
-            System.out.println(word_TF_Map.size());
-            System.out.println(Unique_words.size());
+//            System.out.println(myword);
+//            System.out.println(word_TF_Map.get(myword));
+//            System.out.println(Doc.length());
+//            System.out.println(word_TF_Map.size());
+//            System.out.println(Unique_words.size());
             word_TF_Map.put(myword, word_TF_Map.get(myword) / Doc.length());
             TF = word_TF_Map.get(myword);
             if (TF > 0.5) {
@@ -227,7 +232,7 @@ class WebIndexer implements Runnable {
                 Indexer.put(myword, doc);
 
             }
-            System.out.println("finished indexing");
+            //System.out.println("finished indexing and I'm thread #"+Thread.currentThread().getName());
 
         }
 

@@ -32,7 +32,7 @@ class App {
 
         List<String> seeds = new ArrayList<String>();
 
-        File Seedsfile = new File("src\\Seeds.txt");
+        File Seedsfile = new File("E:\\2nd year- 2nd term\\Advanced programming\\ap_proj\\Search-Engine\\src\\Seeds.txt");
         Scanner SeedsSc = new Scanner(Seedsfile);
 
         while (SeedsSc.hasNextLine()) {
@@ -49,7 +49,8 @@ class App {
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         Runnable obj1 = new webCrawler(numberOfThreads, currentCrawledPages, maxCrawledPages, seeds);
-        crawling(numberOfThreads, obj1);
+      //  crawling(numberOfThreads, obj1);
+        Indexer myind=new Indexer(numberOfThreads);
 
     }
 
@@ -113,16 +114,12 @@ class webCrawler implements Runnable {
 
         while(seeds_size>0) {
             for (int i = 0; i < Num; i++) {
-                if (Integer.parseInt(Thread.currentThread().getName()) == i) {
                     if(seeds_count<seeds.size()) { //actual size , and counter for seeds
                         myUrl = seeds.get(seeds_count);
                         seeds_count++;
                         getPageLinks(this.myUrl);
                     }
 
-                    // System.out.println ("Thread "+ Thread.currentThread().getName() + "
-                    // hellllo");
-                }
                 if (i == Num - 1)
                     FirstCrawling = false;
             }
