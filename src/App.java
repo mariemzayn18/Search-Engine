@@ -33,7 +33,7 @@ class App {
        List<String> seeds = new ArrayList<String>();
 
 
-        File Seedsfile = new File("src/Seeds.txt");
+        File Seedsfile = new File("src\Seeds.txt");
         Scanner SeedsSc = new Scanner(Seedsfile);
 
         while (SeedsSc.hasNextLine()) {

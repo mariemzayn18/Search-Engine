@@ -14,6 +14,7 @@ public class Indexer {
 
     Indexer(int numberOfThreads) {
 
+       // dbMaster.DeleteAllDocs("Indexer");
         this.numberOfThreads = numberOfThreads;
 
         try {
