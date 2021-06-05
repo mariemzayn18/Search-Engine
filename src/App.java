@@ -375,7 +375,7 @@ class webCrawler implements Runnable {
             /// == true  User-agent: *
             if (user_agent && !(line.contains("User-Agent: *")) &&!(line.contains("User-agent: *")) && !(line.contains("Sitemap:"))
                     && !(line.contains("Allow:"))) {
-                if (line.length() >= 9)
+                if (line.length() > 10)
                    Robot_Map.get(url_temp.getHost()).add(line.substring(10));
 
             }

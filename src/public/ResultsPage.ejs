@@ -18,9 +18,13 @@
         <ul>
             <% Documents.URLS.forEach(function(element){ %>
                     <li>
-                        <a href=<%- element.URL %>>
+                        <a id="url" href=<%- element.URL %>>
                             <%- element.title %>
                         </a>
+                        <p id="myurl" ><%- element.URL %></p>
+                        <p id="pargraph" ><%- element.URL %></p>
+
+                        
 
                     </li>
             <%});%>
