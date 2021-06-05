@@ -15,6 +15,7 @@ class App {
     public static int currentCrawledPages = 0;
     public static int maxCrawledPages = 120; // change to 5000
     public static List<String> seeds;
+    public static boolean FirstCrawling = true;
 
     // ----------------------------------------------------------
 
@@ -33,7 +34,7 @@ class App {
        List<String> seeds = new ArrayList<String>();
 
 
-        File Seedsfile = new File("src\\Seeds.txt");
+        File Seedsfile = new File("E:\\2nd year- 2nd term\\Advanced programming\\ap_proj\\Search-Engine\\src\\Seeds.txt");
         Scanner SeedsSc = new Scanner(Seedsfile);
 
         while (SeedsSc.hasNextLine()) {
@@ -60,7 +61,7 @@ class App {
           stopThreads.add(false);
 
 
-      Runnable obj1 = new webCrawler(numberOfThreads, currentCrawledPages, maxCrawledPages, seeds,threads,stopThreads,links);
+      Runnable obj1 = new webCrawler(numberOfThreads, currentCrawledPages, maxCrawledPages, seeds,threads,stopThreads,links, FirstCrawling);
       crawling(numberOfThreads, obj1,threads,stopThreads);
       //System.out.println("FROM CRAWLER --> Finally i have finished working with threads");
 
@@ -82,6 +83,9 @@ class App {
 
         for(int i=0;i<numberOfThreads;i++) {
             threads.get(i).join();
+            if(i==(numberOfThreads-1))
+                FirstCrawling=false;
+
         }
     }
 
@@ -98,7 +102,7 @@ class webCrawler implements Runnable {
     List<String> seeds;
     Vector<Thread> threads;
 
-    boolean FirstCrawling = true;
+    boolean FirstCrawling;
     DataBaseMaster dbMaster = new DataBaseMaster();
     Vector<String> ignored_URLS= new Vector<String>();
     int seeds_size;
@@ -108,7 +112,7 @@ class webCrawler implements Runnable {
 // to store each host (key) with vector of robot.txt disallowed words (value)
     Map<String, Vector<String>> Robot_Map = new HashMap<String, Vector<String>>();
 
-    public webCrawler(int n, int currentCrawledPages, int maxCrawledPages, List<String> seeds,Vector<Thread> threads, Vector<Boolean> stopThreads, HashSet<String> links) {
+    public webCrawler(int n, int currentCrawledPages, int maxCrawledPages, List<String> seeds,Vector<Thread> threads, Vector<Boolean> stopThreads, HashSet<String> links,boolean FirstCrawling) {
         Num = n;
         this.links = links;
 
@@ -119,6 +123,8 @@ class webCrawler implements Runnable {
         this.seeds_count=0;
         this.threads=threads;
         this.stopThreads=stopThreads;
+        this.FirstCrawling=FirstCrawling;
+
 
 
     }
@@ -134,9 +140,6 @@ class webCrawler implements Runnable {
                         seeds_count++;
                         getPageLinks(this.myUrl);
                     }
-
-                    if (i == Num - 1)
-                        FirstCrawling = false;
             }
                 }
             seeds_size-=Num;
@@ -166,7 +169,7 @@ class webCrawler implements Runnable {
                 if ( Robot_Map.get(url_temp.getHost()) == null)
                 {
                       robot_file(URL);
-                      System.out.println("##******ONLY ONE TIME");
+                    //  System.out.println("##******ONLY ONE TIME");
                 }
                 String normalized_url1=""; // ened with /
                 String normalized_url2="";// ended with ?
@@ -189,7 +192,7 @@ class webCrawler implements Runnable {
                         sb.deleteCharAt(sb.length()-1);  
                         if (URL.contains( sb) || normalized_url1.contains( sb) ||normalized_url2.contains( sb))
                         {
-                            System.out.println("#11#############################################################################################################################################Hello there i am not allowed ########################################################################");
+                          //  System.out.println("#11#############################################################################################################################################Hello there i am not allowed ########################################################################");
                             ignored_URLS.add(URL);
                             return;
                         } 
@@ -203,7 +206,7 @@ class webCrawler implements Runnable {
                     || normalized_url2.endsWith(temp_robot2+"?") ||
                     URL.endsWith(temp_robot2+"/") || URL.endsWith(temp_robot2+"?") )
                     {
-                        System.out.println("#222############################################################################################Hello there i am not allowed #######################################################################################################3");
+                       // System.out.println("#222############################################################################################Hello there i am not allowed #######################################################################################################3");
                         ignored_URLS.add(URL);
                         return;
                     }
@@ -217,10 +220,12 @@ class webCrawler implements Runnable {
             }
 
 
-            if (links.contains(URL) && !FirstCrawling) {
+           else if (links.contains(URL) && !FirstCrawling) {
                 dbMaster.UpdateDocument(URL,document.toString(),Thread.currentThread().getName(),Num);
             }
 
+           // to make sure that I haven't been stopped from the AddToLinks function
+            if (!stopThreads.get(Integer.valueOf(Thread.currentThread().getName()))){
 
             Elements linksOnPage = document.select("a[href]");
 
@@ -260,12 +265,12 @@ class webCrawler implements Runnable {
                 // 4- Stop and recrawl
                 else if (links.size() >= maxCrawledPages) {
                     currentCrawledPages = 0;
-                    FirstCrawling = false;
                     for(int i=0;i<Num;i++)
                         stopThreads.set(i, true);
                     return;
                 }
 
+            }
             }
 
         } catch (IOException | InterruptedException e) {
@@ -296,7 +301,6 @@ class webCrawler implements Runnable {
                   //  System.out.println("Database already contains this document");
                     if(links.size() >= maxCrawledPages) { ////////////////////////////// hash set exceeds the 5000 links////////////////////////////// /////////////////////////////
                         currentCrawledPages = 0;
-                        FirstCrawling = false;
                         for(int i=0;i<Num;i++)
                             stopThreads.set(i, true);
                         return;
@@ -316,7 +320,6 @@ class webCrawler implements Runnable {
 
             } if(links.size() >= maxCrawledPages) { ////////////////////////////// hash set exceeds the 5000 links////////////////////////////// /////////////////////////////
                 currentCrawledPages = 0;
-                FirstCrawling = false;
                 for(int i=0;i<Num;i++)
                     stopThreads.set(i, true);
                     return;
@@ -326,7 +329,6 @@ class webCrawler implements Runnable {
     }
 
 
-      // ------------------------------------ Robots.txt ---------------------------
       // ------------------------------------ Robots.txt ---------------------------
    void robot_file(String url) {
     /// getting robot url through the host of the passed url
@@ -379,11 +381,11 @@ class webCrawler implements Runnable {
             }
         }
     
-        System.out.println("vector done");
-        for ( int i=0; i<  Robot_Map.get(url_temp.getHost()).size(); i ++)
-        {
-            System.out.println( Robot_Map.get(url_temp.getHost()).get(i));
-        }
+      //  System.out.println("vector done");
+//        for ( int i=0; i<  Robot_Map.get(url_temp.getHost()).size(); i ++)
+//        {
+//            System.out.println( Robot_Map.get(url_temp.getHost()).get(i));
+//        }
 
     } catch (IOException e) {
         System.out.println("throwing exception!!!!!!!!");
