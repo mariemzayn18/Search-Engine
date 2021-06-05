@@ -9,16 +9,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res, next) => {
-    const MongoClient = mongo.MongoClient;
-    const url = 'mongodb://localhost:27017';
-    MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
-
-        if (err) throw err;
-
-        res.render(path.join(__dirname, 'public', 'magico.ejs'), { Documents: docs });
-        
-    });
-
+    res.sendFile(path.join(__dirname, 'public', 'magico.html'));
+    
 //    res.sendFile(path.join(__dirname, 'public', 'magico.html'));
 });
 app.post('/Search', (req, res, next) => {
