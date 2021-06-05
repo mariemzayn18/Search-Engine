@@ -156,7 +156,12 @@ class webCrawler implements Runnable {
                 for (int i = 0; i < no_read_vector.size(); i++) {
                     // if url contains any extension in the robots go out of the function
                     if (URL.contains(no_read_vector.get(i)))
+                    {
+                        // el 2sly
+                        System.out.println("##############################################################################################################################################Hello there i am not allowed #######################################################################################################3");
                         return;
+                    }
+                        
                 }
                 
                 try {
@@ -279,8 +284,8 @@ class webCrawler implements Runnable {
     }
 
 
-    // ------------------------------------ Robots.txt ---------------------------
-    Vector<String> robot_file(String url) {
+      // ------------------------------------ Robots.txt ---------------------------
+      Vector<String> robot_file(String url) {
         int index = 0;
         // System.out.println("start :)");
         /// getting robot url through the host of the passed url
@@ -292,10 +297,10 @@ class webCrawler implements Runnable {
         }
         // System.out.println("HOST");
         //System.out.println(url_temp.getHost());
-       // System.out.println("robot url");
+        System.out.println("robot url");
         // prepare the url of the robot: protocol+ host + file
-        String robot_url = "https://" + url_temp.getHost() + "/robots.txt";
-        //System.out.println(robot_url);
+        String robot_url = url_temp.getProtocol()+"://" + url_temp.getHost() + "/robots.txt";
+        System.out.println(robot_url);
         // vector to store the disallow extenions in it
         Vector<String> no_read_vector = new Vector<String>(1, 1);
         // read robots.txt file
@@ -308,57 +313,47 @@ class webCrawler implements Runnable {
             boolean user_agent = true;
             while ((line = my_buffer.readLine()) != null) {
                 if (m == 0) {
-                 //   System.out.println("i am in the loop");
+                  //  System.out.println("i am in the loop");
                     m++;
                 }
                 index++;
-                //           System.out.println("i am line ");
-                //         System.out.println(index);
+                       //   System.out.println("i am line ");
+                     //   System.out.println(index);
                 // ignore any comment in the file
-                if (line.startsWith("#") || line == "" || line == " ")
-                    break;
+                
                 /// make sure that we don't follow any user agent => it must be *
                 // each line contain uder agent
                 if (line.contains("User-Agent") || line.contains("User-agent:")) {
-                    //           System.out.println("i am containing user agent");
+                             // System.out.println("i am containing user agent");
                     // if all agents * =>> so we will store
                     if (line.equals("User-Agent: *") || line.equals("User-agent: *")) {
                         user_agent = true;
-                        //             System.out.println("i am user agent *********");
+                     //                System.out.println("i am user agent *********");
                     }
                     // if other user agents specified yahoo, google... set user_agent=false so:
                     // we don't store any line till you find another user agent line
                     else {
                         user_agent = false;
-                        //           System.out.println("i am yahoooooooooo");
-                        //         System.out.println(line);
+                             /  /  System.out.println("i am yahoooooooooo");
+                              //   System.out.println(line);
                     }
                     // skip this iteration anyway because we don't store user-agent line we store
                     // lines after it
                     continue;
                 }
                 /// storing words that really we can not read + make sure it is your user agent
-                /// == true
-                if (user_agent && !(line.contains("User-Agent: *")) && !(line.contains("Sitemap:"))
+                /// == true  User-agent: *
+                if (user_agent && !(line.contains("User-Agent: *")) &&!(line.contains("User-agent: *")) && !(line.contains("Sitemap:"))
                         && !(line.contains("Allow:"))) {
-                    //        System.out.println("i am NOT user agent line");
-                    //      System.out.println(line);
+                           System.out.println("i am NOT user agent line");
+                          System.out.println(line);
                     if (line.length() >= 9)
-                        no_read_vector.add(line.substring(9));
+                        no_read_vector.add(line.substring(10));
 
                 }
             }
-            // System.out.println("i am out of the loop");
-            //
-            // for (int i = 0; i < no_read_vector.capacity(); i++) {
-            // if (i == 0)
-            // System.out.println("print vector");
-            //
-            // System.out.println(no_read_vector.get(i));
-            //
-            //
-            // }
-        //    System.out.println("vector done");
+        
+            System.out.println("vector done");
         } catch (IOException e) {
             System.out.println("throwing exception!!!!!!!!");
         }
