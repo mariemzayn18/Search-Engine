@@ -33,7 +33,7 @@ class App {
        List<String> seeds = new ArrayList<String>();
 
 
-        File Seedsfile = new File("E:\\2nd year- 2nd term\\Advanced programming\\ap_proj\\Search-Engine\\src\\Seeds.txt");
+        File Seedsfile = new File("src\\Seeds.txt");
         Scanner SeedsSc = new Scanner(Seedsfile);
 
         while (SeedsSc.hasNextLine()) {
@@ -105,6 +105,8 @@ class webCrawler implements Runnable {
     int seeds_count;
     Vector<Boolean> stopThreads;
     boolean stopme=false;
+// to store each host (key) with vector of robot.txt disallowed words (value)
+    Map<String, Vector<String>> Robot_Map = new HashMap<String, Vector<String>>();
 
     public webCrawler(int n, int currentCrawledPages, int maxCrawledPages, List<String> seeds,Vector<Thread> threads, Vector<Boolean> stopThreads, HashSet<String> links) {
         Num = n;
@@ -149,20 +151,66 @@ class webCrawler implements Runnable {
             Document document = con.get();
 
             // for the first URL to be saved
-            if (!links.contains(URL)) {
-                //check if this url is not in its host's robots file
-                Vector<String> no_read_vector = new Vector<String>(1, 1);
-                no_read_vector = robot_file(URL);
-                for (int i = 0; i < no_read_vector.size(); i++) {
-                    // if url contains any extension in the robots go out of the function
-                    if (URL.contains(no_read_vector.get(i)))
+            if (!links.contains(URL)) 
+            {
+                URL="https://stackoverflow.com//emails/HH/KL";
+                //--------------------------start robot part ------------------      
+                URL url_temp = null;
+                try
+                 {
+                    url_temp = new URL(URL);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+
+                if ( Robot_Map.get(url_temp.getHost()) == null)
+                {
+                      robot_file(URL);
+                      System.out.println("##******ONLY ONE TIME");
+                }
+                String normalized_url1=""; // ened with /
+                String normalized_url2="";// ended with ?
+                if ( ! URL.endsWith("/"))
+                normalized_url1= URL+"/";
+             else if ( ! URL.endsWith("?"))
+                normalized_url2= URL+"?";
+                else 
+                {
+                    normalized_url1=URL;
+                    normalized_url2=URL;
+                }
+               
+                for (int i = 0; i < Robot_Map.get(url_temp.getHost()).size(); i++)
+                 {
+                    if ( Robot_Map.get(url_temp.getHost()).get(i).endsWith("*"))
                     {
-                        // el 2sly
-                        System.out.println("##############################################################################################################################################Hello there i am not allowed #######################################################################################################3");
+                        String temp_robot = Robot_Map.get(url_temp.getHost()).get(i);    
+                        StringBuffer sb= new StringBuffer(temp_robot);   
+                        sb.deleteCharAt(sb.length()-1);  
+                        if (URL.contains( sb) || normalized_url1.contains( sb) ||normalized_url2.contains( sb))
+                        {
+                            System.out.println("#11#############################################################################################################################################Hello there i am not allowed ########################################################################");
+                            ignored_URLS.add(URL);
+                            return;
+                        } 
+                                                
+                    }
+                    else
+                    {
+                        String temp_robot2=Robot_Map.get(url_temp.getHost()).get(i);  
+                         
+                    if (URL.endsWith(temp_robot2 ) || normalized_url1.endsWith(temp_robot2) 
+                    || normalized_url2.endsWith(temp_robot2+"?") ||
+                    URL.endsWith(temp_robot2+"/") || URL.endsWith(temp_robot2+"?") )
+                    {
+                        System.out.println("#222############################################################################################Hello there i am not allowed #######################################################################################################3");
+                        ignored_URLS.add(URL);
                         return;
                     }
-                        
+
+                    } 
                 }
+          //-------------------------- end robot part ------------------     
                 
                 AddToLinks(URL,document);
         
@@ -279,79 +327,68 @@ class webCrawler implements Runnable {
 
 
       // ------------------------------------ Robots.txt ---------------------------
-      Vector<String> robot_file(String url) {
-        int index = 0;
-        // System.out.println("start :)");
-        /// getting robot url through the host of the passed url
-        URL url_temp = null;
-        try {
-            url_temp = new URL(url);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        // System.out.println("HOST");
-        //System.out.println(url_temp.getHost());
-        System.out.println("robot url");
-        // prepare the url of the robot: protocol+ host + file
-        String robot_url = url_temp.getProtocol()+"://" + url_temp.getHost() + "/robots.txt";
-        System.out.println(robot_url);
-        // vector to store the disallow extenions in it
-        Vector<String> no_read_vector = new Vector<String>(1, 1);
-        // read robots.txt file
-        try (BufferedReader my_buffer = new BufferedReader(new InputStreamReader(new URL(robot_url).openStream()))) {
-            String line = null;
-            int m = 0;
-            // FLAG: true if it is User-Agent: * otherwise we won't save the lines under it
-            // so reset the flag
-            // till we find another "User-Agent" to save disallow lines under it
-            boolean user_agent = true;
-            while ((line = my_buffer.readLine()) != null) {
-                if (m == 0) {
-                  //  System.out.println("i am in the loop");
-                    m++;
-                }
-                index++;
-                       //   System.out.println("i am line ");
-                     //   System.out.println(index);
-                // ignore any comment in the file
-                
-                /// make sure that we don't follow any user agent => it must be *
-                // each line contain uder agent
-                if (line.contains("User-Agent") || line.contains("User-agent:")) {
-                             // System.out.println("i am containing user agent");
-                    // if all agents * =>> so we will store
-                    if (line.equals("User-Agent: *") || line.equals("User-agent: *")) {
-                        user_agent = true;
-                     //                System.out.println("i am user agent *********");
-                    }
-                    // if other user agents specified yahoo, google... set user_agent=false so:
-                    // we don't store any line till you find another user agent line
-                    else {
-                        user_agent = false;
-                               //  System.out.println("i am yahoooooooooo");
-                              //   System.out.println(line);
-                    }
-                    // skip this iteration anyway because we don't store user-agent line we store
-                    // lines after it
-                    continue;
-                }
-                /// storing words that really we can not read + make sure it is your user agent
-                /// == true  User-agent: *
-                if (user_agent && !(line.contains("User-Agent: *")) &&!(line.contains("User-agent: *")) && !(line.contains("Sitemap:"))
-                        && !(line.contains("Allow:"))) {
-                           System.out.println("i am NOT user agent line");
-                          System.out.println(line);
-                    if (line.length() >= 9)
-                        no_read_vector.add(line.substring(10));
-
-                }
-            }
-        
-            System.out.println("vector done");
-        } catch (IOException e) {
-            System.out.println("throwing exception!!!!!!!!");
-        }
-        return no_read_vector;
+      // ------------------------------------ Robots.txt ---------------------------
+   void robot_file(String url) {
+    /// getting robot url through the host of the passed url
+    URL url_temp = null;
+    try {
+        url_temp = new URL(url);
+    } catch (MalformedURLException e) {
+        e.printStackTrace();
     }
+    System.out.println("robot url");
+    // prepare the url of the robot: protocol+ host + file
+    String robot_url = url_temp.getProtocol()+"://" + url_temp.getHost() + "/robots.txt";
+    System.out.println(robot_url);
+    Vector<String> no_read_vector = new Vector<String>();
+    Robot_Map.put(url_temp.getHost(), no_read_vector);
+    // vector to store the disallow extenions in it
+
+    // read robots.txt file
+    try (BufferedReader my_buffer = new BufferedReader(new InputStreamReader(new URL(robot_url).openStream()))) {
+        String line = null;
+        // FLAG: true if it is User-Agent: * otherwise we won't save the lines under it
+        // so reset the flag
+        // till we find another "User-Agent" to save disallow lines under it
+        boolean user_agent = true;
+        while ((line = my_buffer.readLine()) != null) {
+            /// make sure that we don't follow any user agent => it must be *
+            // each line contain uder agent
+            if (line.contains("User-Agent") || line.contains("User-agent:")) {
+                // if all agents * =>> so we will store
+                if (line.equals("User-Agent: *") || line.equals("User-agent: *")) {
+                    user_agent = true;
+                 //                System.out.println("i am user agent *********");
+                }
+                // if other user agents specified yahoo, google... set user_agent=false so:
+                // we don't store any line till you find another user agent line
+                else {
+                    user_agent = false;
+                }
+                // skip this iteration anyway because we don't store user-agent line we store
+                // lines after it
+                continue;
+            }
+            /// storing words that really we can not read + make sure it is your user agent
+            /// == true  User-agent: *
+            if (user_agent && !(line.contains("User-Agent: *")) &&!(line.contains("User-agent: *")) && !(line.contains("Sitemap:"))
+                    && !(line.contains("Allow:"))) {
+                if (line.length() >= 9)
+                   Robot_Map.get(url_temp.getHost()).add(line.substring(10));
+
+            }
+        }
+    
+        System.out.println("vector done");
+        for ( int i=0; i<  Robot_Map.get(url_temp.getHost()).size(); i ++)
+        {
+            System.out.println( Robot_Map.get(url_temp.getHost()).get(i));
+        }
+
+    } catch (IOException e) {
+        System.out.println("throwing exception!!!!!!!!");
+    }
+    
+}
 
 }
