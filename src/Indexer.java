@@ -3,6 +3,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
+
+import javax.print.Doc;
+
 import java.util.regex.Matcher;
 
 //import DataBaseMaster;
@@ -58,8 +61,8 @@ public class Indexer {
                 IDF = (double) (DOCs_Num / Indexer.get(key).size());
                 for (int i = 0; i < Indexer.get(key).size(); i++) {
 
-                    IDF = (Double) Indexer.get(key).get(i).get("priority") * IDF;
-                    Indexer.get(key).get(i).append("priority", IDF);
+                 //   IDF = (Double) Indexer.get(key).get(i).get("priority") * IDF;
+                    Indexer.get(key).get(i).append("IDF", IDF);
                 }
             }
             dbMaster.insertDocs(Indexer, Spam_URLs);
@@ -220,7 +223,7 @@ class WebIndexer implements Runnable {
             // if not a spam store the word in the hash table with its value ( Key :word ,
             // value: doc contains URL & priority)
             org.bson.Document Word_Value = new org.bson.Document("Word", myword).append("URL", URL)
-                    .append("title", title).append("priority", TF);
+                    .append("title", title).append("TF", TF).append("Content", Doc.substring(0,70));
             // check if this doc exists alrady in th DB
             List<org.bson.Document> doc = Indexer.get(myword);
             // IF this word is not stored before
