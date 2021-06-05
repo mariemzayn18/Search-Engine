@@ -36,7 +36,7 @@ public class DataBaseMaster {
         } catch (Exception e) {
             System.out.println(e.toString());
         }
-      //  System.out.println("Collections created successfully");
+        System.out.println("Collections created successfully");
 
     }
 
@@ -55,6 +55,27 @@ public class DataBaseMaster {
         return list;
 
     }
+    public String RetreiveURL(String thread_name){
+
+        MongoCollection<Document> collection = database.getCollection("WebCrawler");
+        Document iterDoc = collection.find(new BasicDBObject("threadname", thread_name)).sort(new BasicDBObject("_id", -1)).first();
+        return iterDoc.get("URL").toString();
+    }
+    
+    public int RetreiveThreadNum(String thread_name){
+
+        MongoCollection<Document> collection = database.getCollection("WebCrawler");
+        Document iterDoc = collection.find().first();
+        return Integer.parseInt(iterDoc.get("threadnum").toString());
+    }
+
+    public int DBCount(){
+        MongoCollection<Document> collection = database.getCollection("WebCrawler");
+        long iterDoc = collection.count();
+        return (int)iterDoc ;
+        
+    }
+    
 
     public List<Document> retriveIndexes() {
         MongoCollection<Document> collection = database.getCollection("Indexers");
@@ -105,12 +126,13 @@ public class DataBaseMaster {
 
     }
 
-    public void insertDocument(String documenString,String title, String URL) {
+    public void insertDocument(String documenString, String URL,String Thread_name ,int Thread_num ) {
         MongoCollection<Document> collection = database.getCollection("WebCrawler");
-        Document document = new Document("URL", URL).append("Document", documenString).append("title",title);
+        Document document = new Document("URL", URL).append("Document", documenString)
+        .append("threadname", Thread_name).append("threadnum",Thread_num);
         // Inserting document into the collection
         collection.insertOne(document);
-      //  System.out.println("Document inserted successfully");
+        System.out.println("Document inserted successfully");
 
     }
 
@@ -120,22 +142,27 @@ public class DataBaseMaster {
         List<Document> docs = new ArrayList<Document>();
         for (String key : Table.keySet()) {
             Document document = new Document("Word", key);
+            List<Document> documents = new ArrayList<Document>();
             for (int i = 0; i < Table.get(key).size(); i++) {
-
                 Document data = Table.get(key).get(i);
+                Document URLS = new Document();
                 String url = String.valueOf(data.get("URL"));
                 String title = String.valueOf(data.get("title"));
-                // chcek if this url contains spam skip this url and don't insert it into DB
-                document.append("URL", url);
-                document.append("title", title);
                 
+                // chcek if this url contains spam skip this url and don't insert it into DB
+                URLS.append("URL", url);
+                URLS.append("title", title);
                 // note didn't sort the list yet :(
-                document.append("priority", data.get("priority"));
+                URLS.append("priority", data.get("priority"));
+                documents.add(URLS);
+                
             }
+            
+            document.append("URLS", documents);
             docs.add(document);
         }
         collection.insertMany(docs);
-    //    System.out.println("hii after insert many");
+        System.out.println("hii after insert many");
 
     }
 
@@ -176,12 +203,12 @@ public class DataBaseMaster {
         return;
     }
 
-    public void UpdateDocument(String URL, String Document) {
+    public void UpdateDocument(String URL, String Document,String Thread_name,int Thread_num) {
 
         MongoCollection<Document> collection = database.getCollection("WebCrawler");
-        Document Updated = new Document("URL", URL).append("Document", Document);
+        Document Updated = new Document("URL", URL).append("Document", Document).append("threadname", Thread_name).append("threadnum",Thread_num); ;
         collection.findOneAndReplace(new Document("URL", URL), Updated);
-      //  System.out.println("indexer Updated successfully");
+        System.out.println("indexer Updated successfully");
         return;
 
     }

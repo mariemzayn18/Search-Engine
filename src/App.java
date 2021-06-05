@@ -164,19 +164,13 @@ class webCrawler implements Runnable {
                         
                 }
                 
-                try {
-                    String title = document.select("title").first().text();
-                    AddToLinks(URL,title,document);
+                AddToLinks(URL,document);
         
-                } catch (Exception e) {
-                    AddToLinks(URL,URL,document);
-                }
-                
             }
 
 
             if (links.contains(URL) && !FirstCrawling) {
-                dbMaster.UpdateDocument(URL,document.toString());
+                dbMaster.UpdateDocument(URL,document.toString(),Thread.currentThread().getName(),Num);
             }
 
 
@@ -234,7 +228,7 @@ class webCrawler implements Runnable {
 
     }
 
-    public void AddToLinks(String URL,String title, Document document) throws InterruptedException {
+    public void AddToLinks(String URL, Document document) throws InterruptedException {
         synchronized (this) {
          //   System.out.println("I have the lock and I'm thread"+Thread.currentThread().getName());
             if (links.size() < maxCrawledPages) {
@@ -265,7 +259,7 @@ class webCrawler implements Runnable {
 
                 if (links.add(URL)) {
 
-                    dbMaster.insertDocument(document.toString(),title,URL);
+                    dbMaster.insertDocument(document.toString(),URL,Thread.currentThread().getName(),Num );
                     currentCrawledPages++; /////////////// remove this counter//////////////////////////
                     System.out.println(URL + " my count= " + links.size());
 
@@ -334,7 +328,7 @@ class webCrawler implements Runnable {
                     // we don't store any line till you find another user agent line
                     else {
                         user_agent = false;
-                             /  /  System.out.println("i am yahoooooooooo");
+                               //  System.out.println("i am yahoooooooooo");
                               //   System.out.println(line);
                     }
                     // skip this iteration anyway because we don't store user-agent line we store

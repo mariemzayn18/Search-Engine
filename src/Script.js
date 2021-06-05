@@ -24,8 +24,14 @@ app.post('/Search', (req, res, next) => {
         const db = client.db("myDatabase");
         index = stemmer(index);
         db.collection('Indexers').find({ Word: index }).toArray().then((docs) => {
-
-            res.render(path.join(__dirname, 'public', 'ResultsPage.ejs'),{Documents:docs});
+            
+        docs.forEach(doc =>{
+            (doc.URLS.forEach(element=>{
+                console.log(element.URL);
+            }));
+        });
+        
+        res.render(path.join(__dirname, 'public', 'ResultsPage.ejs'),{Documents:docs[0]});
 
         }).catch((err) => {
 

@@ -1,35 +1,33 @@
-<!DOCTYPE html >
+<!DOCTYPE html>
 <html>
+
 <head>
-<link rel="stylesheet" href="ResultsPage.css">
+    <link rel="stylesheet" href="ResultsPage.css">
 </head>
+
 <body>
     <div class="container">
         <div class="item">
 
             <img src="logo.png" alt="Magico">
-            <input
-            type="input"
-            id="search-input"
-            autocomplete="off"
-            placeholder="Type word to Search ...."
-        />
-        <button type="button">Search</button>
+            <input type="input" id="search-input" autocomplete="off" placeholder="Type word to Search ...." />
+            <button type="button">Search</button>
 
         </div>
-        
-     <ul>
-        <% Documents.forEach(function(doc){ %>
-            <li>
-             <a href=<%- doc.URL %>>
-                <%- doc.title %>  
-             </a>   
-             
-            </li>
+
+        <ul>
+            <% Documents.URLS.forEach(function(element){ %>
+                    <li>
+                        <a href=<%- element.URL %>>
+                            <%- element.title %>
+                        </a>
+
+                    </li>
             <%});%>
-      </ul>
-            
+        </ul>
+
     </div>
 
 </body>
+
 </html>

@@ -2,6 +2,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 //import DataBaseMaster;
 public class Indexer {
@@ -21,22 +23,22 @@ public class Indexer {
             // reterive data from database
             List<org.bson.Document> Docs = dbMaster.retriveDocuments();
 
-            List<org.bson.Document> DB_Indexers = dbMaster.retriveIndexes();
-            // looping over the Words and urls and Save Them
-            for (int i = 0; i < DB_Indexers.size(); i++) {
-                String url = DB_Indexers.get(i).get("URL").toString();
-                String title = DB_Indexers.get(i).get("title").toString();
-                String iString = DB_Indexers.get(i).get("Word").toString();
-                double TF = Double.valueOf(DB_Indexers.get(i).get("priority").toString());
-                org.bson.Document Word_Value = new org.bson.Document("Word", iString).append("URL", url)
-                        .append("title", title).append("priority", TF);
-                List<org.bson.Document> doc = Indexer.get(iString);
-                if (doc == null) {
-                    doc = new ArrayList<>();
-                }
-                doc.add(Word_Value);
-                Indexer.put(iString, doc);
-            }
+            // List<org.bson.Document> DB_Indexers = dbMaster.retriveIndexes();
+            // // looping over the Words and urls and Save Them
+            // for (int i = 0; i < DB_Indexers.size(); i++) {
+            //     String url = DB_Indexers.get(i).get("URL").toString();
+            //     String title = DB_Indexers.get(i).get("title").toString();
+            //     String iString = DB_Indexers.get(i).get("Word").toString();
+            //     double TF = Double.valueOf(DB_Indexers.get(i).get("priority").toString());
+            //     org.bson.Document Word_Value = new org.bson.Document("Word", iString).append("URL", url)
+            //             .append("title", title).append("priority", TF);
+            //     List<org.bson.Document> doc = Indexer.get(iString);
+            //     if (doc == null) {
+            //         doc = new ArrayList<>();
+            //     }
+            //     doc.add(Word_Value);
+            //     Indexer.put(iString, doc);
+            // }
 
             // looping over the documents and urls and send them to function
             DOCs_Num = Docs.size();
@@ -114,15 +116,8 @@ class WebIndexer implements Runnable {
                     String url = Docs.get(Doc_count).get("URL").toString();
                     System.out.println("Indexer and my URL is: " + url);
                     String doc = Docs.get(Doc_count).get("Document").toString();
-                 String title;
-                    try {
-                    title = Docs.get(Doc_count).get("title").toString();
-                      
-                  } catch (Exception e) {
-                     title = url;
-                  }
                     Doc_count++;
-                    indexing_process(doc, url, title);
+                    indexing_process(doc, url);
                 }
 
             }
@@ -133,7 +128,7 @@ class WebIndexer implements Runnable {
 
     }
 
-    public void indexing_process(String Doc, String URL, String title) {
+    public void indexing_process(String Doc, String URL) {
         // -----------------------------Indexer--------------------------------
 
         // TODO 1-Remove HTML Tags(Done)
@@ -144,6 +139,12 @@ class WebIndexer implements Runnable {
 
         // Remove Tags
         String str = Doc;
+        String title = URL;
+        Pattern p = Pattern.compile("<title>(.*?)</title>");
+        Matcher m = p.matcher(str);
+        if(m.find() == true) {
+            title = m.group(1);
+        }
         str = str.replaceAll("<style([\\s\\S]+?)</style>", "");
         str = str.replaceAll("<script([\\s\\S]+?)</script>", "");
         str = str.replaceAll("\n", "");
