@@ -156,7 +156,7 @@ class webCrawler implements Runnable {
             // for the first URL to be saved
             if (!links.contains(URL)) 
             {
-                URL="https://stackoverflow.com//emails/HH/KL";
+               
                 //--------------------------start robot part ------------------      
                 URL url_temp = null;
                 try
@@ -202,9 +202,9 @@ class webCrawler implements Runnable {
                     {
                         String temp_robot2=Robot_Map.get(url_temp.getHost()).get(i);  
                          
-                    if (URL.endsWith(temp_robot2 ) || normalized_url1.endsWith(temp_robot2) 
-                    || normalized_url2.endsWith(temp_robot2+"?") ||
-                    URL.endsWith(temp_robot2+"/") || URL.endsWith(temp_robot2+"?") )
+                    if (URL.contains(temp_robot2 ) || normalized_url1.contains(temp_robot2) 
+                    || normalized_url2.contains(temp_robot2+"?") ||
+                    URL.contains(temp_robot2+"/") || URL.contains(temp_robot2+"?") )
                     {
                        // System.out.println("#222############################################################################################Hello there i am not allowed #######################################################################################################3");
                         ignored_URLS.add(URL);
@@ -394,3 +394,4 @@ class webCrawler implements Runnable {
 }
 
 }
+/////////////
