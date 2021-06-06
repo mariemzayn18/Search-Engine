@@ -148,13 +148,15 @@ public class DataBaseMaster {
                 Document URLS = new Document();
                 String url = String.valueOf(data.get("URL"));
                 String title = String.valueOf(data.get("title"));
+                String TF = String.valueOf(data.get("TF"));
+                String Doc = String.valueOf(data.get("Content"));
                 
                 // chcek if this url contains spam skip this url and don't insert it into DB
                 URLS.append("URL", url);
                 URLS.append("title", title);
                 // note didn't sort the list yet :(
-                URLS.append("priority", data.get("priority"));
-                documents.add(URLS);
+                    URLS.append("TF", TF).append("Content", Doc.substring(0,70));
+                    documents.add(URLS);
                 
             }
             

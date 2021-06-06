@@ -19,7 +19,7 @@ public class Indexer {
 
     Indexer(int numberOfThreads) {
 
-       // dbMaster.DeleteAllDocs("Indexer");
+        // dbMaster.DeleteAllDocs("Indexer");
         this.numberOfThreads = numberOfThreads;
 
         try {
@@ -29,18 +29,19 @@ public class Indexer {
             // List<org.bson.Document> DB_Indexers = dbMaster.retriveIndexes();
             // // looping over the Words and urls and Save Them
             // for (int i = 0; i < DB_Indexers.size(); i++) {
-            //     String url = DB_Indexers.get(i).get("URL").toString();
-            //     String title = DB_Indexers.get(i).get("title").toString();
-            //     String iString = DB_Indexers.get(i).get("Word").toString();
-            //     double TF = Double.valueOf(DB_Indexers.get(i).get("priority").toString());
-            //     org.bson.Document Word_Value = new org.bson.Document("Word", iString).append("URL", url)
-            //             .append("title", title).append("priority", TF);
-            //     List<org.bson.Document> doc = Indexer.get(iString);
-            //     if (doc == null) {
-            //         doc = new ArrayList<>();
-            //     }
-            //     doc.add(Word_Value);
-            //     Indexer.put(iString, doc);
+            // String url = DB_Indexers.get(i).get("URL").toString();
+            // String title = DB_Indexers.get(i).get("title").toString();
+            // String iString = DB_Indexers.get(i).get("Word").toString();
+            // double TF = Double.valueOf(DB_Indexers.get(i).get("priority").toString());
+            // org.bson.Document Word_Value = new org.bson.Document("Word",
+            // iString).append("URL", url)
+            // .append("title", title).append("priority", TF);
+            // List<org.bson.Document> doc = Indexer.get(iString);
+            // if (doc == null) {
+            // doc = new ArrayList<>();
+            // }
+            // doc.add(Word_Value);
+            // Indexer.put(iString, doc);
             // }
 
             // looping over the documents and urls and send them to function
@@ -61,16 +62,16 @@ public class Indexer {
                 IDF = (double) (DOCs_Num / Indexer.get(key).size());
                 for (int i = 0; i < Indexer.get(key).size(); i++) {
 
-                 //   IDF = (Double) Indexer.get(key).get(i).get("priority") * IDF;
+                    // IDF = (Double) Indexer.get(key).get(i).get("priority") * IDF;
                     Indexer.get(key).get(i).append("IDF", IDF);
                 }
             }
             dbMaster.insertDocs(Indexer, Spam_URLs);
-    
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
     }
 
     public static void index_threads(int numberOfThreads, Runnable obj1) throws InterruptedException {
@@ -145,13 +146,23 @@ class WebIndexer implements Runnable {
         String title = URL;
         Pattern p = Pattern.compile("<title>(.*?)</title>");
         Matcher m = p.matcher(str);
-        if(m.find() == true) {
+        if (m.find() == true) {
             title = m.group(1);
         }
+
+        if (title == null) {
+            Pattern p2 = Pattern.compile("<h1>(.*?)</h1>");
+            Matcher m2 = p2.matcher(str);
+            if (m2.find() == true) {
+                title = m2.group(1);
+            }
+
+        }
+
         str = str.replaceAll("<style([\\s\\S]+?)</style>", "");
         str = str.replaceAll("<script([\\s\\S]+?)</script>", "");
         str = str.replaceAll("\n", "");
-        str = str.replaceAll("\\<[\s]*tag[^>]*>","");
+        str = str.replaceAll("\\<[\s]*tag[^>]*>", "");
         str = str.replaceAll("\\<.*?>", "");
         str = str.replaceAll("[0-9]", "");
         str = str.replaceAll("\\p{P}", "");
@@ -162,7 +173,7 @@ class WebIndexer implements Runnable {
             Scanner Words = new Scanner(StopWords);
 
             while (Words.hasNextLine()) {
-                str = str.replaceAll(Words.nextLine()+"\\s+", " ");
+                str = str.replaceAll(Words.nextLine() + "\\s+", " ");
             }
 
             Words.close();
@@ -223,12 +234,12 @@ class WebIndexer implements Runnable {
             // if not a spam store the word in the hash table with its value ( Key :word ,
             // value: doc contains URL & priority)
             org.bson.Document Word_Value = new org.bson.Document("Word", myword).append("URL", URL)
-                    .append("title", title).append("TF", TF).append("Content", Doc.substring(0,70));
+                    .append("title", title).append("TF", TF).append("Content", Doc.substring(0, 70));
             // check if this doc exists alrady in th DB
             List<org.bson.Document> doc = Indexer.get(myword);
             // IF this word is not stored before
             if (doc == null) {
-                //System.out.println("----------------------NULL DOC----------");
+                // System.out.println("----------------------NULL DOC----------");
                 // if not create a new list for this word to store its URLs and priorities
                 doc = new ArrayList<>();
                 // add the first doc in its list

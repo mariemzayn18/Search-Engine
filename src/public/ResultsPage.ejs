@@ -3,6 +3,7 @@
 
 <head>
     <link rel="stylesheet" href="ResultsPage.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 </head>
 
 <body>
@@ -14,24 +15,72 @@
             <button type="button">Search</button>
 
         </div>
+        <% var count=0 ; var page=1 ; var elements=[] ;%>
+        
+        <% Documents.URLS.forEach(function(element){ elements.push(element); });%>
 
-        <ul>
-            <% Documents.URLS.forEach(function(element){ %>
-                    <li>
-                        <a id="url" href=<%- element.URL %>>
-                            <%- element.title %>
-                        </a>
-                        <p id="myurl" ><%- element.URL %></p>
-                        <p id="pargraph" ><%- element.Content %></p>
-
-                        
-
-                    </li>
-            <%});%>
-        </ul>
+                <ul>
+                    <% for(var i=mypage*20 ; i < elements.length;i++){ %>
+                        <% if(mypage===page){ %>
+                            <li>
+                                <a id="url" href=<%- elements[i].URL %>>
+                                    <%- elements[i].title %>
+                                </a>
+                                <p id="myurl">
+                                    <%- elements[i].URL %>
+                                </p>
+                                <p id="pargraph">
+                                    <%- elements[i].Content %>
+                                </p>
+                            </li>
+                            <% }; %>
+                                <% if(count===20){ %>
+                                    <button type="submit" id="<%- page %>" onClick="turnpage(this);">
+                                        <%- page++ ;%>
+                                    </button>
+                                    <% count=0 ;}%>
+                                        <% count++ ;%>
+                                            <%};%>
+                </ul>
 
     </div>
+    <script>
+        
+        console.log(<%elements%>);
+        function turnpage(btn) {
+            var id = btn.id;
+            var obj = {
+                 mypage: id
+            };
+            $.ajax({
+                url: 'http://localhost:3000/Search',
+                type: 'POST',
+                data: obj,
+                async: false,
+                dataType: "json",
+                cache: false,
+                complete: function(html) {
+                    
+                    $("body").html(html.responseText);
+                },
+                success: function (html) {
+
+                },
+                error: function (jqXHR, textStatus, err) {
+                }
+            })
+        }
+
+    </script>
 
 </body>
 
 </html>
+
+
+
+
+
+
+
+

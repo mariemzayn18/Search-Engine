@@ -5,9 +5,10 @@ const bodyParser = require('body-parser');
 const app = express();
 const mongo = require('mongodb');
 var stemmer = require('porter-stemmer').stemmer
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static(path.join(__dirname, 'public')));
-
+var index;
+app.set('view engine', 'ejs');
 app.get('/', (req, res, next) => {
     const MongoClient = mongo.MongoClient;
     const url = 'mongodb://localhost:27017';
@@ -33,10 +34,18 @@ app.get('/', (req, res, next) => {
 //    res.sendFile(path.join(__dirname, 'public', 'magico.html'));
 });
 app.post('/Search', (req, res, next) => {
-    var index = req.body.index;
+    var Mypage;
+    if(req.body.index != undefined)
+     {
+        index = req.body.index;
+        Mypage = 1;
+     }   
+    else{
+        Mypage = Number(req.body.mypage);
+        
+    }
     const MongoClient = mongo.MongoClient;
     const url = 'mongodb://localhost:27017';
-    console.log('data: ', index.toLowerCase());
     
     MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
 
@@ -46,12 +55,10 @@ app.post('/Search', (req, res, next) => {
         db.collection('Suggestion').insertOne({ Word: index }, function (err, res) {
 
             if (err) throw err;
-            console.log("1 document inserted");
         });
         index = stemmer(index.toLowerCase());
         db.collection('Indexers').find({ Word: index }).toArray().then((docs) => {
-
-            res.render(path.join(__dirname, 'public', 'ResultsPage.ejs'), { Documents: docs[0] });
+            res.render(path.join(__dirname, 'public', 'ResultsPage.ejs'), { Documents: docs[0] ,mypage:Mypage});
 
         }).catch((err) => {
 
@@ -62,6 +69,30 @@ app.post('/Search', (req, res, next) => {
 
 
 });
+
+
+app.post('/Search/id', (req, res, next) => {
+    const MongoClient = mongo.MongoClient;
+    const url = 'mongodb://localhost:27017';
+    MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
+
+        if (err) throw err;
+
+        const db = client.db("myDatabase");
+        index = stemmer(index.toLowerCase());
+        db.collection('Indexers').find({ Word: index }).toArray().then((docs) => {
+            
+            res.render(path.join(__dirname, 'public', 'ResultsPage.ejs'), { Documents: docs[0] ,mypage:Mypage});
+
+        }).catch((err) => {
+
+            console.log(err);
+        });
+    });
+
+});
+
+
 
 const server = http.createServer(app);
 server.listen(3000);
