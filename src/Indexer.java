@@ -1,3 +1,5 @@
+
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -169,7 +171,7 @@ class WebIndexer implements Runnable {
         str = str.toLowerCase();
         // Array of unwanted Text(finished)
         try {
-            File StopWords = new File("E:\\2nd year- 2nd term\\Advanced programming\\ap_proj\\Search-Engine\\src\\StopWords.txt");
+            File StopWords = new File("src/StopWords.txt");
             Scanner Words = new Scanner(StopWords);
 
             while (Words.hasNextLine()) {
@@ -234,7 +236,7 @@ class WebIndexer implements Runnable {
             // if not a spam store the word in the hash table with its value ( Key :word ,
             // value: doc contains URL & priority)
             org.bson.Document Word_Value = new org.bson.Document("Word", myword).append("URL", URL)
-                    .append("title", title).append("TF", TF).append("Content", Doc.substring(0, 70));
+                    .append("title", title).append("TF", TF).append("Content", str.substring(0, 30));
             // check if this doc exists alrady in th DB
             List<org.bson.Document> doc = Indexer.get(myword);
             // IF this word is not stored before
@@ -256,5 +258,4 @@ class WebIndexer implements Runnable {
         }
 
     }
-
 }

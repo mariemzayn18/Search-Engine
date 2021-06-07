@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const app = express();
 const mongo = require('mongodb');
 var stemmer = require('porter-stemmer').stemmer
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 var index;
 app.set('view engine', 'ejs');
@@ -17,48 +17,61 @@ app.get('/', (req, res, next) => {
         if (err) throw err;
 
         const db = client.db("myDatabase");
-        db.collection('Suggestion').find({ }).toArray().then((docs) => {
-            
+        db.collection('Suggestion').find({}).toArray().then((docs) => {
+
             //console.log(docs);
             res.render(path.join(__dirname, 'public', 'magico.ejs'), { Documents: docs });
             //res.sendFile(path.join(__dirname, 'public', 'magico.html'), { Documents: docs });
 
         }).catch((err) => {
 
-//            res.render(path.join(__dirname, 'public', 'magico.html'));
-            console.log(err);
+            //            res.render(path.join(__dirname, 'public', 'magico.html'));
+            res.render(path.join(__dirname, 'public', 'magico.ejs'), { Documents: docs });
         });
-        
+
     });
 
-//    res.sendFile(path.join(__dirname, 'public', 'magico.html'));
+    //    res.sendFile(path.join(__dirname, 'public', 'magico.html'));
 });
 app.post('/Search', (req, res, next) => {
     var Mypage;
-    if(req.body.index != undefined)
-     {
+    if (req.body.index != undefined) {
         index = req.body.index;
         Mypage = 1;
-     }   
-    else{
+    }
+    else {
         Mypage = Number(req.body.mypage);
-        
+
     }
     const MongoClient = mongo.MongoClient;
     const url = 'mongodb://localhost:27017';
-    
+
     MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
 
         if (err) throw err;
 
         const db = client.db("myDatabase");
-        db.collection('Suggestion').insertOne({ Word: index }, function (err, res) {
+        db.collection('Suggestion').find({ Word: index }).toArray().then((docs) => {
+            console.log(docs.length);
+            if (docs.length == 0) {
+                db.collection('Suggestion').insertOne({ Word: index }, function (err, res) {
 
-            if (err) throw err;
+                    console.log('inserted');
+                    if (err) throw err;
+                });
+
+            } else {
+                console.log('already in');
+            }
+
+        }).catch((err) => {
+
+
         });
+
         index = stemmer(index.toLowerCase());
         db.collection('Indexers').find({ Word: index }).toArray().then((docs) => {
-            res.render(path.join(__dirname, 'public', 'ResultsPage.ejs'), { Documents: docs[0] ,mypage:Mypage});
+            res.render(path.join(__dirname, 'public', 'ResultsPage.ejs'), { Documents: docs[0], mypage: Mypage });
 
         }).catch((err) => {
 
@@ -81,8 +94,8 @@ app.post('/Search/id', (req, res, next) => {
         const db = client.db("myDatabase");
         index = stemmer(index.toLowerCase());
         db.collection('Indexers').find({ Word: index }).toArray().then((docs) => {
-            
-            res.render(path.join(__dirname, 'public', 'ResultsPage.ejs'), { Documents: docs[0] ,mypage:Mypage});
+
+            res.render(path.join(__dirname, 'public', 'ResultsPage.ejs'), { Documents: docs[0], mypage: Mypage });
 
         }).catch((err) => {
 

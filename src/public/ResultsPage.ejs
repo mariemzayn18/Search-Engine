@@ -11,12 +11,20 @@
         <div class="item">
 
             <img src="logo.png" alt="Magico">
-            <input type="input" id="search-input" autocomplete="off" placeholder="Type word to Search ...." />
-            <button type="button">Search</button>
-
+            <form action="http://localhost:3000/Search" method="POST">
+                <div class="search-engine">
+      
+                  <input type="input" id="search-input" name="index" autocomplete="off"
+                    placeholder="Type word to Search ...." />
+                </div>
+                <button type="submit">Search</button>
+              </form>
+              
         </div>
+        <% if(Documents != undefined) {%>
         <% var count=0 ; var page=1 ; var elements=[] ;%>
         
+        <% if(Documents.length != 0) ;%>
         <% Documents.URLS.forEach(function(element){ elements.push(element); });%>
 
                 <ul>
@@ -42,7 +50,9 @@
                                         <% count++ ;%>
                                             <%};%>
                 </ul>
-
+<%} else {  %>
+    <p> Sorry,no Documents for this word :'</p>
+<%  }%>
     </div>
     <script>
         
