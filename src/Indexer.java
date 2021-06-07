@@ -169,7 +169,7 @@ class WebIndexer implements Runnable {
         str = str.toLowerCase();
         // Array of unwanted Text(finished)
         try {
-            File StopWords = new File("Search-Engine\\StopWords.txt");
+            File StopWords = new File("E:\\2nd year- 2nd term\\Advanced programming\\ap_proj\\Search-Engine\\src\\StopWords.txt");
             Scanner Words = new Scanner(StopWords);
 
             while (Words.hasNextLine()) {
